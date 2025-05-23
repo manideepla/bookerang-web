@@ -6,7 +6,7 @@ import BookCard from '../components/BookCard';
 import UserCard from '../components/UserCard';
 import { books as mockBooks, users as mockUsers } from '../data/mockData';
 import { Book, BookUser, SearchFilters } from '../types';
-import { fetchBooks, fetchUsers, searchBooks } from '../services/api';
+import { fetchBooks, fetchUsers, searchBooks, login } from '../services/api';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Book as BookIcon, Users } from 'lucide-react';
@@ -20,6 +20,24 @@ const Index = () => {
     showAvailableOnly: false
   });
   const { toast } = useToast();
+  
+  // Auto-login on first load if not logged in
+  useEffect(() => {
+    const autoLogin = async () => {
+      // Check if we already have a token
+      if (!localStorage.getItem('auth_token')) {
+        try {
+          await login();
+          console.log('Auto login successful');
+        } catch (error) {
+          console.error('Auto login failed:', error);
+          // Continue with the app, the API calls will handle unauthorized errors
+        }
+      }
+    };
+    
+    autoLogin();
+  }, []);
   
   // Fetch initial data
   useEffect(() => {
