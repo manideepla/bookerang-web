@@ -16,7 +16,6 @@ export default function Header() {
         <div className="hidden md:flex items-center space-x-6">
           <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">Home</a>
           <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">My Books</a>
-          <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">Map</a>
           <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">Profile</a>
         </div>
         
@@ -44,7 +43,6 @@ export default function Header() {
           <nav className="flex flex-col space-y-3">
             <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">Home</a>
             <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">My Books</a>
-            <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">Map</a>
             <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">Profile</a>
           </nav>
         </div>

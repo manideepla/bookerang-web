@@ -4,12 +4,11 @@ import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
 import UserCard from '../components/UserCard';
-import BookMap from '../components/BookMap';
 import { books as mockBooks, users as mockUsers } from '../data/mockData';
 import { Book, BookUser, SearchFilters } from '../types';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Book as BookIcon, Users, MapPin } from 'lucide-react';
+import { Book as BookIcon, Users } from 'lucide-react';
 
 const Index = () => {
   const [books, setBooks] = useState<Book[]>(mockBooks);
@@ -68,10 +67,6 @@ const Index = () => {
               <Users className="w-4 h-4 mr-2" />
               Readers
             </TabsTrigger>
-            <TabsTrigger value="map" className="data-[state=active]:bg-bookshelf-teal data-[state=active]:text-white">
-              <MapPin className="w-4 h-4 mr-2" />
-              Map
-            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="books" className="pt-6">
@@ -104,10 +99,6 @@ const Index = () => {
                 <UserCard key={user.id} user={user} books={books} />
               ))}
             </div>
-          </TabsContent>
-          
-          <TabsContent value="map" className="pt-6">
-            <BookMap users={users} books={books} />
           </TabsContent>
         </Tabs>
         
