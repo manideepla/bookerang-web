@@ -1,46 +1,100 @@
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
+import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
 import UserCard from '../components/UserCard';
 import { books as mockBooks, users as mockUsers } from '../data/mockData';
 import { Book, BookUser, SearchFilters } from '../types';
+import { fetchBooks, fetchUsers, searchBooks } from '../services/api';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Book as BookIcon, Users } from 'lucide-react';
 
 const Index = () => {
-  const [books, setBooks] = useState<Book[]>(mockBooks);
-  const [users, setUsers] = useState<BookUser[]>(mockUsers);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [users, setUsers] = useState<BookUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
     showAvailableOnly: false
   });
+  const { toast } = useToast();
   
-  // Apply filters to books
-  const filteredBooks = useMemo(() => {
-    return books.filter(book => {
-      // Filter by availability if needed
-      if (filters.showAvailableOnly && !book.isAvailable) {
-        return false;
+  // Fetch initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setIsLoading(true);
+      try {
+        const [booksData, usersData] = await Promise.all([
+          fetchBooks(),
+          fetchUsers()
+        ]);
+        
+        setBooks(booksData);
+        setUsers(usersData);
+      } catch (error) {
+        console.error('Failed to load initial data:', error);
+        toast({
+          title: 'Connection Error',
+          description: 'Failed to connect to the backend. Using mock data instead.',
+          variant: 'destructive'
+        });
+        
+        // Fallback to mock data if API fails
+        setBooks(mockBooks);
+        setUsers(mockUsers);
+      } finally {
+        setIsLoading(false);
       }
-      
-      // Filter by search query
-      if (filters.query) {
-        const query = filters.query.toLowerCase();
-        return (
-          book.title.toLowerCase().includes(query) ||
-          book.author.toLowerCase().includes(query)
-        );
-      }
-      
-      return true;
-    });
-  }, [books, filters]);
+    };
+    
+    loadInitialData();
+  }, [toast]);
   
-  const handleSearch = (searchFilters: SearchFilters) => {
+  // Handle search with API
+  const handleSearch = async (searchFilters: SearchFilters) => {
     setFilters(searchFilters);
+    setIsLoading(true);
+    
+    try {
+      const results = await searchBooks(
+        searchFilters.query, 
+        searchFilters.showAvailableOnly
+      );
+      setBooks(results);
+    } catch (error) {
+      console.error('Search failed:', error);
+      toast({
+        title: 'Search Error',
+        description: 'Failed to perform search. Please try again.',
+        variant: 'destructive'
+      });
+      
+      // Apply filters locally as fallback
+      const filtered = mockBooks.filter(book => {
+        // Filter by availability if needed
+        if (searchFilters.showAvailableOnly && !book.isAvailable) {
+          return false;
+        }
+        
+        // Filter by search query
+        if (searchFilters.query) {
+          const query = searchFilters.query.toLowerCase();
+          return (
+            book.title.toLowerCase().includes(query) ||
+            book.author.toLowerCase().includes(query)
+          );
+        }
+        
+        return true;
+      });
+      
+      setBooks(filtered);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -70,13 +124,24 @@ const Index = () => {
           </TabsList>
           
           <TabsContent value="books" className="pt-6">
-            {filteredBooks.length > 0 ? (
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-pulse text-bookshelf-teal">Loading books...</div>
+              </div>
+            ) : books.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredBooks.map((book) => (
+                {books.map((book) => (
                   <BookCard 
                     key={book.id} 
                     book={book} 
-                    owner={users.find(user => user.id === book.ownerId)!}
+                    owner={users.find(user => user.id === book.ownerId) || {
+                      id: 0,
+                      name: 'Unknown',
+                      avatar: 'https://via.placeholder.com/150',
+                      distance: 'Unknown',
+                      books: [],
+                      location: { lat: 0, lng: 0 }
+                    }}
                   />
                 ))}
               </div>
@@ -94,11 +159,17 @@ const Index = () => {
           </TabsContent>
           
           <TabsContent value="users" className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {users.map((user) => (
-                <UserCard key={user.id} user={user} books={books} />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-pulse text-bookshelf-teal">Loading readers...</div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {users.map((user) => (
+                  <UserCard key={user.id} user={user} books={books} />
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
         
