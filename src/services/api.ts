@@ -3,9 +3,9 @@ import { Book, BookUser } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
 
-export const fetchBooks = async (): Promise<Book[]> => {
+export const fetchBooks = async (distance: number = 3000): Promise<Book[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/books`);
+    const response = await fetch(`${API_BASE_URL}/books?distance=${distance}`);
     if (!response.ok) {
       throw new Error(`Error fetching books: ${response.status}`);
     }
