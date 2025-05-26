@@ -1,4 +1,3 @@
-
 import { Book, BookUser } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -6,7 +5,7 @@ const API_BASE_URL = 'http://localhost:8080';
 // Store the authentication token
 let authToken: string | null = null;
 
-export const login = async (): Promise<string> => {
+export const login = async (username: string, password: string): Promise<string> => {
   try {
     const response = await fetch(`${API_BASE_URL}/user/login`, {
       method: 'POST',
@@ -14,8 +13,8 @@ export const login = async (): Promise<string> => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        "username": "cerseila",
-        "password": "aliesrec"
+        username,
+        password
       })
     });
     
