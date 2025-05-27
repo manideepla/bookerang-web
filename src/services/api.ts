@@ -1,4 +1,3 @@
-
 import { Book, BookUser } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -35,7 +34,7 @@ export const login = async (username: string, password: string): Promise<string>
 
 export const signup = async (username: string, password: string, firstName: string, lastName: string): Promise<void> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/signup`, {
+    const response = await fetch(`${API_BASE_URL}/user/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
