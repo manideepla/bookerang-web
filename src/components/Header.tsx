@@ -31,7 +31,7 @@ export default function Header() {
         <div className="container mx-auto px-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Book className="h-8 w-8 text-bookshelf-brown" />
-            <h1 className="text-2xl font-bold text-bookshelf-brown">Neighborhood Bookshelf</h1>
+            <h1 className="text-2xl font-bold text-bookshelf-brown">Bookerang</h1>
           </div>
           
           <div className="hidden md:flex items-center space-x-6">

@@ -186,7 +186,7 @@ const Index = () => {
       
       <footer className="bg-bookshelf-cream border-t border-bookshelf-brown/20 mt-12 py-6">
         <div className="container mx-auto px-4 text-center text-bookshelf-dark/70 text-sm">
-          <p>© 2025 Neighborhood Bookshelf. All rights reserved.</p>
+          <p>© 2025 Bookerang. All rights reserved.</p>
         </div>
       </footer>
     </div>
