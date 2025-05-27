@@ -41,9 +41,9 @@ export default function Header() {
           </div>
           
           <div className="hidden md:flex items-center space-x-6">
-            <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">Home</a>
+            <a href="/" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">Home</a>
             <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">My Books</a>
-            <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">Profile</a>
+            <a href="/profile" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">Profile</a>
             
             {isLoggedIn ? (
               <Button 
@@ -98,9 +98,9 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden bg-bookshelf-cream py-2 px-4">
             <nav className="flex flex-col space-y-3">
-              <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">Home</a>
+              <a href="/" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">Home</a>
               <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">My Books</a>
-              <a href="#" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">Profile</a>
+              <a href="/profile" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">Profile</a>
               
               {isLoggedIn ? (
                 <Button 
