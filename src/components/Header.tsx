@@ -5,14 +5,20 @@ import { Button } from '@/components/ui/button';
 import { logout } from '../services/api';
 import { useToast } from '@/hooks/use-toast';
 import SignInForm from './SignInForm';
+import SignUpForm from './SignUpForm';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('auth_token'));
   const [showSignInForm, setShowSignInForm] = useState(false);
+  const [showSignUpForm, setShowSignUpForm] = useState(false);
   const { toast } = useToast();
   
   const handleSignInSuccess = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleSignUpSuccess = () => {
     setIsLoggedIn(true);
   };
   
@@ -50,14 +56,23 @@ export default function Header() {
                 Sign Out
               </Button>
             ) : (
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="bg-bookshelf-cream border-bookshelf-brown/40 hover:bg-bookshelf-brown/10"
-                onClick={() => setShowSignInForm(true)}
-              >
-                Sign In
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="bg-bookshelf-cream border-bookshelf-brown/40 hover:bg-bookshelf-brown/10"
+                  onClick={() => setShowSignInForm(true)}
+                >
+                  Sign In
+                </Button>
+                <Button 
+                  size="sm"
+                  className="bg-bookshelf-brown hover:bg-bookshelf-brown/80 text-white"
+                  onClick={() => setShowSignUpForm(true)}
+                >
+                  Sign Up
+                </Button>
+              </div>
             )}
           </div>
           
@@ -98,14 +113,23 @@ export default function Header() {
                   Sign Out
                 </Button>
               ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="bg-bookshelf-cream border-bookshelf-brown/40 hover:bg-bookshelf-brown/10"
-                  onClick={() => setShowSignInForm(true)}
-                >
-                  Sign In
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="bg-bookshelf-cream border-bookshelf-brown/40 hover:bg-bookshelf-brown/10"
+                    onClick={() => setShowSignInForm(true)}
+                  >
+                    Sign In
+                  </Button>
+                  <Button 
+                    size="sm"
+                    className="bg-bookshelf-brown hover:bg-bookshelf-brown/80 text-white"
+                    onClick={() => setShowSignUpForm(true)}
+                  >
+                    Sign Up
+                  </Button>
+                </div>
               )}
             </nav>
           </div>
@@ -116,6 +140,12 @@ export default function Header() {
         open={showSignInForm}
         onOpenChange={setShowSignInForm}
         onSuccess={handleSignInSuccess}
+      />
+      
+      <SignUpForm 
+        open={showSignUpForm}
+        onOpenChange={setShowSignUpForm}
+        onSuccess={handleSignUpSuccess}
       />
     </>
   );
