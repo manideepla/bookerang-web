@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { signup } from '../services/api';
 
 interface SignUpFormProps {
   open: boolean;
@@ -25,11 +25,9 @@ export default function SignUpForm({ open, onOpenChange, onSuccess }: SignUpForm
     setIsLoading(true);
 
     try {
-      // TODO: Replace with actual API call
       console.log('Sign up data:', { firstName, lastName, username, password });
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await signup(username, password, firstName, lastName);
       
       toast({
         title: "Account Created!",

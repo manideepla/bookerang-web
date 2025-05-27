@@ -1,3 +1,4 @@
+
 import { Book, BookUser } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -28,6 +29,30 @@ export const login = async (username: string, password: string): Promise<string>
     return authToken;
   } catch (error) {
     console.error('Login error:', error);
+    throw error;
+  }
+};
+
+export const signup = async (username: string, password: string, firstName: string, lastName: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/signup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username,
+        password,
+        firstName,
+        lastName
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Sign up failed: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Sign up error:', error);
     throw error;
   }
 };
