@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
@@ -27,7 +28,7 @@ const Index = () => {
       setIsLoading(true);
       try {
         const [booksData, usersData] = await Promise.all([
-          fetchBooks(), // Using default distance of 3000
+          fetchBooks(3000), // Using radius parameter with 3000 value
           fetchUsers()
         ]);
         

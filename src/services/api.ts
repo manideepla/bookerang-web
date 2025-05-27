@@ -67,10 +67,10 @@ export const getAuthHeaders = (): HeadersInit => {
     : {};
 };
 
-export const fetchBooks = async (distance: number = 3000): Promise<Book[]> => {
+export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
   try {
     const headers = getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/books?distance=${distance}`, {
+    const response = await fetch(`${API_BASE_URL}/books?radius=${radius}`, {
       headers
     });
     if (!response.ok) {
