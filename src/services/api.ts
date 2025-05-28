@@ -77,7 +77,18 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
     if (!response.ok) {
       throw new Error(`Error fetching books: ${response.status}`);
     }
-    return await response.json();
+    const data = await response.json();
+    console.log('Raw API response:', data);
+    
+    // Handle both direct array and object with books property
+    if (Array.isArray(data)) {
+      return data;
+    } else if (data && Array.isArray(data.books)) {
+      return data.books;
+    } else {
+      console.warn('Unexpected API response format:', data);
+      return [];
+    }
   } catch (error) {
     console.error('Error fetching books:', error);
     return [];
@@ -97,7 +108,17 @@ export const searchBooks = async (query: string, showAvailableOnly: boolean): Pr
     if (!response.ok) {
       throw new Error(`Error searching books: ${response.status}`);
     }
-    return await response.json();
+    const data = await response.json();
+    
+    // Handle both direct array and object with books property
+    if (Array.isArray(data)) {
+      return data;
+    } else if (data && Array.isArray(data.books)) {
+      return data.books;
+    } else {
+      console.warn('Unexpected search response format:', data);
+      return [];
+    }
   } catch (error) {
     console.error('Error searching books:', error);
     return [];
