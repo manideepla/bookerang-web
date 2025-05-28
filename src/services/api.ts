@@ -1,4 +1,5 @@
-import { Book, BookUser } from '../types';
+
+import { Book } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
 
@@ -79,22 +80,6 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
     return await response.json();
   } catch (error) {
     console.error('Error fetching books:', error);
-    return [];
-  }
-};
-
-export const fetchUsers = async (): Promise<BookUser[]> => {
-  try {
-    const headers = getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/users`, {
-      headers
-    });
-    if (!response.ok) {
-      throw new Error(`Error fetching users: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching users:', error);
     return [];
   }
 };

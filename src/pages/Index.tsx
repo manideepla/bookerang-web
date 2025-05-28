@@ -4,17 +4,13 @@ import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
-import UserCard from '../components/UserCard';
-import { books as mockBooks, users as mockUsers } from '../data/mockData';
-import { Book, BookUser, SearchFilters } from '../types';
-import { fetchBooks, fetchUsers, searchBooks } from '../services/api';
+import { books as mockBooks } from '../data/mockData';
+import { Book, SearchFilters } from '../types';
+import { fetchBooks, searchBooks } from '../services/api';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Book as BookIcon, Users } from 'lucide-react';
 
 const Index = () => {
   const [books, setBooks] = useState<Book[]>([]);
-  const [users, setUsers] = useState<BookUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
@@ -27,13 +23,8 @@ const Index = () => {
     const loadInitialData = async () => {
       setIsLoading(true);
       try {
-        const [booksData, usersData] = await Promise.all([
-          fetchBooks(3000), // Using radius parameter with 3000 value
-          fetchUsers()
-        ]);
-        
+        const booksData = await fetchBooks(3000);
         setBooks(booksData);
-        setUsers(usersData);
       } catch (error) {
         console.error('Failed to load initial data:', error);
         toast({
@@ -44,7 +35,6 @@ const Index = () => {
         
         // Fallback to mock data if API fails
         setBooks(mockBooks);
-        setUsers(mockUsers);
       } finally {
         setIsLoading(false);
       }
@@ -111,67 +101,34 @@ const Index = () => {
         
         <SearchBar onSearch={handleSearch} />
         
-        <Tabs defaultValue="books" className="mb-8">
-          <TabsList className="bg-bookshelf-paper border border-bookshelf-brown/10">
-            <TabsTrigger value="books" className="data-[state=active]:bg-bookshelf-teal data-[state=active]:text-white">
-              <BookIcon className="w-4 h-4 mr-2" />
-              Books
-            </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-bookshelf-teal data-[state=active]:text-white">
-              <Users className="w-4 h-4 mr-2" />
-              Readers
-            </TabsTrigger>
-          </TabsList>
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-bookshelf-brown mb-6">Available Books</h2>
           
-          <TabsContent value="books" className="pt-6">
-            {isLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-pulse text-bookshelf-teal">Loading books...</div>
-              </div>
-            ) : books.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {books.map((book) => (
-                  <BookCard 
-                    key={book.id} 
-                    book={book} 
-                    owner={users.find(user => user.id === book.ownerId) || {
-                      id: 0,
-                      name: 'Unknown',
-                      avatar: 'https://via.placeholder.com/150',
-                      distance: 'Unknown',
-                      books: [],
-                      location: { lat: 0, lng: 0 }
-                    }}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-bookshelf-dark/50 mb-4">No books found matching your search.</p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setFilters({ query: '', showAvailableOnly: false })}
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="users" className="pt-6">
-            {isLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-pulse text-bookshelf-teal">Loading readers...</div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {users.map((user) => (
-                  <UserCard key={user.id} user={user} books={books} />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-pulse text-bookshelf-teal">Loading books...</div>
+            </div>
+          ) : books.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {books.map((book) => (
+                <BookCard 
+                  key={book.id} 
+                  book={book}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-bookshelf-dark/50 mb-4">No books found matching your search.</p>
+              <Button 
+                variant="outline" 
+                onClick={() => setFilters({ query: '', showAvailableOnly: false })}
+              >
+                Clear Filters
+              </Button>
+            </div>
+          )}
+        </div>
         
         <div className="bg-white rounded-lg shadow-md p-6 mt-12 text-center">
           <h2 className="text-2xl font-bold text-bookshelf-brown mb-4">Share Your Books</h2>
