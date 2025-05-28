@@ -23,10 +23,21 @@ const Index = () => {
     const loadInitialData = async () => {
       setIsLoading(true);
       try {
+        console.log('Fetching books from API...');
         const booksData = await fetchBooks(3000);
-        setBooks(booksData);
+        console.log('API response received:', booksData);
+        console.log('Number of books received:', booksData?.length);
+        
+        if (booksData && booksData.length > 0) {
+          console.log('Setting books state with API data');
+          setBooks(booksData);
+        } else {
+          console.log('No books in API response, using mock data');
+          setBooks(mockBooks);
+        }
       } catch (error) {
         console.error('Failed to load initial data:', error);
+        console.log('Using mock data due to API error');
         toast({
           title: 'Connection Error',
           description: 'Failed to connect to the backend. Using mock data instead.',
@@ -86,6 +97,12 @@ const Index = () => {
       setIsLoading(false);
     }
   };
+
+  // Add debug logging for the books state
+  useEffect(() => {
+    console.log('Books state updated:', books);
+    console.log('Current number of books in state:', books.length);
+  }, [books]);
 
   return (
     <div className="min-h-screen bg-bookshelf-cream/30">
