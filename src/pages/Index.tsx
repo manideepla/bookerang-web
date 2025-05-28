@@ -28,11 +28,13 @@ const Index = () => {
         console.log('API response received:', booksData);
         console.log('Number of books received:', booksData?.length);
         
-        if (booksData && booksData.length > 0) {
+        // If fetchBooks returns an array (even if empty), use it
+        // Only fall back to mock data if there was an actual error
+        if (Array.isArray(booksData)) {
           console.log('Setting books state with API data');
           setBooks(booksData);
         } else {
-          console.log('No books in API response, using mock data');
+          console.log('API did not return an array, using mock data');
           setBooks(mockBooks);
         }
       } catch (error) {
