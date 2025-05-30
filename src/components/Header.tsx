@@ -41,7 +41,7 @@ export default function Header() {
           
           <div className="hidden md:flex items-center space-x-6">
             <a href="/" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">Home</a>
-            <a href="/profile" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">My Books</a>
+            <a href="/my-books" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">My Books</a>
             <a href="/profile" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors">Profile</a>
             
             {isLoggedIn ? (
@@ -98,7 +98,7 @@ export default function Header() {
           <div className="md:hidden bg-bookshelf-cream py-2 px-4">
             <nav className="flex flex-col space-y-3">
               <a href="/" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">Home</a>
-              <a href="/profile" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">My Books</a>
+              <a href="/my-books" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">My Books</a>
               <a href="/profile" className="text-bookshelf-brown hover:text-bookshelf-teal transition-colors py-2">Profile</a>
               
               {isLoggedIn ? (
