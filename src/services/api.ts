@@ -1,4 +1,3 @@
-
 import { Book } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -121,6 +120,33 @@ export const searchBooks = async (query: string, showAvailableOnly: boolean): Pr
     }
   } catch (error) {
     console.error('Error searching books:', error);
+    return [];
+  }
+};
+
+export const fetchUserBooks = async (): Promise<Book[]> => {
+  try {
+    const headers = getAuthHeaders();
+    const response = await fetch(`${API_BASE_URL}/books/user`, {
+      headers
+    });
+    if (!response.ok) {
+      throw new Error(`Error fetching user books: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('Raw user books API response:', data);
+    
+    // Handle both direct array and object with books property
+    if (Array.isArray(data)) {
+      return data;
+    } else if (data && Array.isArray(data.books)) {
+      return data.books;
+    } else {
+      console.warn('Unexpected user books response format:', data);
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching user books:', error);
     return [];
   }
 };
