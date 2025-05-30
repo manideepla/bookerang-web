@@ -26,13 +26,6 @@ export default function BookCard({ book }: BookCardProps) {
       <div className="p-4">
         <h3 className="text-lg font-semibold text-bookshelf-dark truncate group-hover:text-bookshelf-teal transition-colors">{book.title}</h3>
         <p className="text-bookshelf-dark/70 text-sm">{book.author}</p>
-        
-        <div className="mt-4 pt-3 border-t border-bookshelf-brown/10">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-bookshelf-dark font-medium">Available for borrowing</span>
-            <span className="text-xs text-bookshelf-teal">Nearby</span>
-          </div>
-        </div>
       </div>
     </div>
   );
