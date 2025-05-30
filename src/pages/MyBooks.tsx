@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
 import BookCard from '../components/BookCard';
+import AddBookForm from '../components/AddBookForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Book, Plus } from 'lucide-react';
@@ -13,6 +14,7 @@ const MyBooks = () => {
   const [userBooks, setUserBooks] = useState<BookType[]>([]);
   const [isLoadingBooks, setIsLoadingBooks] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('auth_token'));
+  const [showAddBookForm, setShowAddBookForm] = useState(false);
   const { toast } = useToast();
 
   const loadUserBooks = async () => {
@@ -30,6 +32,10 @@ const MyBooks = () => {
     } finally {
       setIsLoadingBooks(false);
     }
+  };
+
+  const handleAddBookSuccess = () => {
+    loadUserBooks(); // Refresh the books list
   };
 
   useEffect(() => {
@@ -64,6 +70,7 @@ const MyBooks = () => {
             <h1 className="text-3xl font-bold text-bookshelf-brown">My Books ({userBooks.length})</h1>
             <Button 
               className="bg-bookshelf-brown hover:bg-bookshelf-brown/80 text-white"
+              onClick={() => setShowAddBookForm(true)}
             >
               <Plus className="mr-2 h-4 w-4" />
               Add Book
@@ -92,6 +99,7 @@ const MyBooks = () => {
                 </p>
                 <Button 
                   className="bg-bookshelf-brown hover:bg-bookshelf-brown/80 text-white"
+                  onClick={() => setShowAddBookForm(true)}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Your First Book
@@ -101,6 +109,12 @@ const MyBooks = () => {
           )}
         </div>
       </main>
+
+      <AddBookForm 
+        open={showAddBookForm}
+        onOpenChange={setShowAddBookForm}
+        onSuccess={handleAddBookSuccess}
+      />
     </div>
   );
 };

@@ -151,6 +151,32 @@ export const fetchUserBooks = async (): Promise<Book[]> => {
   }
 };
 
+export const addBook = async (title: string, author: string): Promise<Book> => {
+  try {
+    const headers = {
+      ...getAuthHeaders(),
+      'Content-Type': 'application/json'
+    };
+    const response = await fetch(`${API_BASE_URL}/books/add`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        title,
+        author
+      })
+    });
+    if (!response.ok) {
+      throw new Error(`Error adding book: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('Book added successfully:', data);
+    return data;
+  } catch (error) {
+    console.error('Error adding book:', error);
+    throw error;
+  }
+};
+
 export const logout = (): void => {
   authToken = null;
   localStorage.removeItem('auth_token');
