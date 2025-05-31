@@ -41,7 +41,7 @@ export default function SignInForm({ open, onOpenChange, onSuccess }: SignInForm
       setPassword('');
       toast({
         title: "Success",
-        description: "You have successfully logged in.",
+        description: `Welcome back, ${username}!`,
       });
     } catch (error) {
       toast({

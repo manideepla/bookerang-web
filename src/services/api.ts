@@ -1,3 +1,4 @@
+
 import { Book } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -25,6 +26,7 @@ export const login = async (username: string, password: string): Promise<string>
     const data = await response.json();
     authToken = data.token;
     localStorage.setItem('auth_token', authToken);
+    localStorage.setItem('username', username);
     return authToken;
   } catch (error) {
     console.error('Login error:', error);
@@ -180,4 +182,5 @@ export const addBook = async (title: string, author: string): Promise<Book> => {
 export const logout = (): void => {
   authToken = null;
   localStorage.removeItem('auth_token');
+  localStorage.removeItem('username');
 };
