@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
@@ -147,17 +146,6 @@ const Index = () => {
               </Button>
             </div>
           )}
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-md p-6 mt-12 text-center">
-          <h2 className="text-2xl font-bold text-bookshelf-brown mb-4">Share Your Books</h2>
-          <p className="text-bookshelf-dark/70 mb-6 max-w-2xl mx-auto">
-            Join our community of readers and share your books with neighbors. 
-            It's a great way to discover new titles and meet fellow book lovers.
-          </p>
-          <Button className="bg-bookshelf-brown hover:bg-bookshelf-brown/80 text-white">
-            Add Your Books
-          </Button>
         </div>
       </main>
       

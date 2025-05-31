@@ -1,20 +1,17 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
-import BookCard from '../components/BookCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, User, Book, LogOut } from 'lucide-react';
-import { logout, fetchUserBooks } from '../services/api';
-import { Book as BookType } from '../types';
+import { MapPin, User, LogOut } from 'lucide-react';
+import { logout } from '../services/api';
 
 const Profile = () => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string>('');
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('auth_token'));
-  const [userBooks, setUserBooks] = useState<BookType[]>([]);
-  const [isLoadingBooks, setIsLoadingBooks] = useState(false);
   const { toast } = useToast();
 
   const getCurrentLocation = () => {
@@ -76,28 +73,10 @@ const Profile = () => {
     });
   };
 
-  const loadUserBooks = async () => {
-    setIsLoadingBooks(true);
-    try {
-      const books = await fetchUserBooks();
-      setUserBooks(books);
-    } catch (error) {
-      console.error('Failed to load user books:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load your books.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingBooks(false);
-    }
-  };
-
   useEffect(() => {
     // Auto-get location on component mount if user is logged in
     if (isLoggedIn) {
       getCurrentLocation();
-      loadUserBooks();
     }
   }, [isLoggedIn]);
 
@@ -139,7 +118,7 @@ const Profile = () => {
                   <div>
                     <label className="text-sm font-medium text-bookshelf-dark/70">Username</label>
                     <p className="text-bookshelf-brown font-medium">
-                      {localStorage.getItem('username') || 'Not available'}
+                      {localStorage.getItem('username') || 'Guest User'}
                     </p>
                   </div>
                   <div>
@@ -191,42 +170,6 @@ const Profile = () => {
                     Your location helps us show you books available nearby.
                   </p>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* My Books Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Book className="mr-2 h-5 w-5" />
-                  My Books ({userBooks.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isLoadingBooks ? (
-                  <div className="text-center py-8">
-                    <div className="animate-pulse text-bookshelf-teal">Loading your books...</div>
-                  </div>
-                ) : userBooks.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {userBooks.map((book) => (
-                      <BookCard key={book.id} book={book} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Book className="mx-auto h-12 w-12 text-bookshelf-dark/30 mb-4" />
-                    <p className="text-bookshelf-dark/70 mb-4">
-                      You haven't added any books yet.
-                    </p>
-                    <Button 
-                      variant="outline"
-                      className="border-bookshelf-brown text-bookshelf-brown hover:bg-bookshelf-brown/10"
-                    >
-                      Add Your First Book
-                    </Button>
-                  </div>
-                )}
               </CardContent>
             </Card>
 
