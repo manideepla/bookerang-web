@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
@@ -10,7 +9,6 @@ import { logout, fetchUserProfile } from '../services/api';
 const Profile = () => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string>('');
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('auth_token'));
   const [userProfile, setUserProfile] = useState<any>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
@@ -41,21 +39,14 @@ const Profile = () => {
       return;
     }
 
-    setIsGettingLocation(true);
     setLocationError('');
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         setLocation({ lat: latitude, lng: longitude });
-        setIsGettingLocation(false);
-        toast({
-          title: "Location Updated",
-          description: "Your location has been successfully updated.",
-        });
       },
       (error) => {
-        setIsGettingLocation(false);
         let errorMessage = 'Unable to retrieve your location.';
         
         switch (error.code) {
@@ -71,11 +62,6 @@ const Profile = () => {
         }
         
         setLocationError(errorMessage);
-        toast({
-          title: "Location Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
       },
       {
         enableHighAccuracy: true,
@@ -209,14 +195,6 @@ const Profile = () => {
                       <p className="text-red-800 text-sm">{locationError}</p>
                     </div>
                   )}
-                  
-                  <Button 
-                    onClick={getCurrentLocation}
-                    disabled={isGettingLocation}
-                    className="bg-bookshelf-teal hover:bg-bookshelf-teal/80"
-                  >
-                    {isGettingLocation ? 'Getting Location...' : 'Update Location'}
-                  </Button>
                   
                   <p className="text-sm text-bookshelf-dark/70">
                     Your location helps us show you books available nearby.
