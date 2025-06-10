@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Book, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { logout } from '../services/api';
@@ -13,6 +13,27 @@ export default function Header() {
   const [showSignUpForm, setShowSignUpForm] = useState(false);
   const { toast } = useToast();
   
+  // Listen for auth token changes
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      setIsLoggedIn(!!localStorage.getItem('auth_token'));
+    };
+
+    // Check on component mount
+    checkAuthStatus();
+
+    // Listen for storage changes (when auth token is added/removed)
+    window.addEventListener('storage', checkAuthStatus);
+
+    // Listen for custom auth events
+    window.addEventListener('authStateChange', checkAuthStatus);
+
+    return () => {
+      window.removeEventListener('storage', checkAuthStatus);
+      window.removeEventListener('authStateChange', checkAuthStatus);
+    };
+  }, []);
+  
   const handleSignInSuccess = () => {
     setIsLoggedIn(true);
   };
@@ -24,6 +45,8 @@ export default function Header() {
   const handleLogout = () => {
     logout();
     setIsLoggedIn(false);
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new Event('authStateChange'));
     toast({
       title: "Logged Out",
       description: "You have been logged out.",

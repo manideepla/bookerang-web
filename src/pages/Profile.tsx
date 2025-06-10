@@ -75,6 +75,8 @@ const Profile = () => {
     logout();
     setIsLoggedIn(false);
     setUserProfile(null);
+    // Dispatch custom event to notify Header component
+    window.dispatchEvent(new Event('authStateChange'));
     toast({
       title: "Logged Out",
       description: "You have been logged out successfully.",
