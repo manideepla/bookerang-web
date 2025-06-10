@@ -1,4 +1,3 @@
-
 import { Book } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -67,6 +66,24 @@ export const getAuthHeaders = (): HeadersInit => {
   return authToken 
     ? { 'Authorization': `Bearer ${authToken}` } 
     : {};
+};
+
+export const fetchUserProfile = async (): Promise<any> => {
+  try {
+    const headers = getAuthHeaders();
+    const response = await fetch(`${API_BASE_URL}/user`, {
+      headers
+    });
+    if (!response.ok) {
+      throw new Error(`Error fetching user profile: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('User profile data:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    throw error;
+  }
 };
 
 export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
