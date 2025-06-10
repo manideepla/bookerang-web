@@ -14,6 +14,37 @@ const Profile = () => {
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const { toast } = useToast();
 
+  // Listen for auth token changes
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const newAuthStatus = !!localStorage.getItem('auth_token');
+      setIsLoggedIn(newAuthStatus);
+      
+      // If user just logged in, load their profile
+      if (newAuthStatus && !userProfile) {
+        loadUserProfile();
+      }
+      // If user logged out, clear profile
+      if (!newAuthStatus) {
+        setUserProfile(null);
+      }
+    };
+
+    // Check on component mount
+    checkAuthStatus();
+
+    // Listen for storage changes (when auth token is added/removed)
+    window.addEventListener('storage', checkAuthStatus);
+
+    // Listen for custom auth events
+    window.addEventListener('authStateChange', checkAuthStatus);
+
+    return () => {
+      window.removeEventListener('storage', checkAuthStatus);
+      window.removeEventListener('authStateChange', checkAuthStatus);
+    };
+  }, [userProfile]);
+
   const loadUserProfile = async () => {
     if (!isLoggedIn) return;
     
