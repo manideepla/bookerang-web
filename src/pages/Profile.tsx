@@ -5,14 +5,35 @@ import Header from '../components/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, User, LogOut } from 'lucide-react';
-import { logout } from '../services/api';
+import { logout, fetchUserProfile } from '../services/api';
 
 const Profile = () => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string>('');
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('auth_token'));
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const { toast } = useToast();
+
+  const loadUserProfile = async () => {
+    if (!isLoggedIn) return;
+    
+    setIsLoadingProfile(true);
+    try {
+      const profile = await fetchUserProfile();
+      setUserProfile(profile);
+    } catch (error) {
+      console.error('Failed to load user profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load user profile data.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -67,6 +88,7 @@ const Profile = () => {
   const handleLogout = () => {
     logout();
     setIsLoggedIn(false);
+    setUserProfile(null);
     toast({
       title: "Logged Out",
       description: "You have been logged out successfully.",
@@ -77,6 +99,7 @@ const Profile = () => {
     // Auto-get location on component mount if user is logged in
     if (isLoggedIn) {
       getCurrentLocation();
+      loadUserProfile();
     }
   }, [isLoggedIn]);
 
@@ -96,6 +119,20 @@ const Profile = () => {
     );
   }
 
+  const formatMemberSince = (dateString: string) => {
+    if (!dateString) return 'Today';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    } catch (error) {
+      return 'Today';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-bookshelf-cream/30">
       <Header />
@@ -114,18 +151,33 @@ const Profile = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-bookshelf-dark/70">Username</label>
-                    <p className="text-bookshelf-brown font-medium">
-                      {localStorage.getItem('username') || 'Guest User'}
-                    </p>
+                {isLoadingProfile ? (
+                  <div className="space-y-4">
+                    <div className="animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                      <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                    <div className="animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                      <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-bookshelf-dark/70">Member since</label>
-                    <p className="text-bookshelf-brown font-medium">Today</p>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-bookshelf-dark/70">Username</label>
+                      <p className="text-bookshelf-brown font-medium">
+                        {userProfile?.username || localStorage.getItem('username') || 'Guest User'}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-bookshelf-dark/70">Member since</label>
+                      <p className="text-bookshelf-brown font-medium">
+                        {formatMemberSince(userProfile?.createdAt || userProfile?.memberSince)}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
