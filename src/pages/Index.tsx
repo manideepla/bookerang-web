@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
@@ -5,11 +6,12 @@ import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
 import { books as mockBooks } from '../data/mockData';
 import { Book, SearchFilters } from '../types';
-import { fetchBooks, searchBooks } from '../services/api';
+import { fetchBooks } from '../services/api';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
-  const [books, setBooks] = useState<Book[]>([]);
+  const [allBooks, setAllBooks] = useState<Book[]>([]);
+  const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
@@ -31,10 +33,12 @@ const Index = () => {
         // Only fall back to mock data if there was an actual error
         if (Array.isArray(booksData)) {
           console.log('Setting books state with API data');
-          setBooks(booksData);
+          setAllBooks(booksData);
+          setDisplayedBooks(booksData);
         } else {
           console.log('API did not return an array, using mock data');
-          setBooks(mockBooks);
+          setAllBooks(mockBooks);
+          setDisplayedBooks(mockBooks);
         }
       } catch (error) {
         console.error('Failed to load initial data:', error);
@@ -46,7 +50,8 @@ const Index = () => {
         });
         
         // Fallback to mock data if API fails
-        setBooks(mockBooks);
+        setAllBooks(mockBooks);
+        setDisplayedBooks(mockBooks);
       } finally {
         setIsLoading(false);
       }
@@ -55,55 +60,46 @@ const Index = () => {
     loadInitialData();
   }, [toast]);
   
-  // Handle search with API
-  const handleSearch = async (searchFilters: SearchFilters) => {
+  // Handle search by filtering the fetched books locally
+  const handleSearch = (searchFilters: SearchFilters) => {
     setFilters(searchFilters);
-    setIsLoading(true);
     
-    try {
-      const results = await searchBooks(
-        searchFilters.query, 
-        searchFilters.showAvailableOnly
-      );
-      setBooks(results);
-    } catch (error) {
-      console.error('Search failed:', error);
-      toast({
-        title: 'Search Error',
-        description: 'Failed to perform search. Please try again.',
-        variant: 'destructive'
-      });
+    console.log('Searching locally within fetched books...');
+    console.log('Search filters:', searchFilters);
+    
+    const filtered = allBooks.filter(book => {
+      // Filter by availability if needed
+      if (searchFilters.showAvailableOnly && !book.isAvailable) {
+        return false;
+      }
       
-      // Apply filters locally as fallback
-      const filtered = mockBooks.filter(book => {
-        // Filter by availability if needed
-        if (searchFilters.showAvailableOnly && !book.isAvailable) {
-          return false;
-        }
-        
-        // Filter by search query
-        if (searchFilters.query) {
-          const query = searchFilters.query.toLowerCase();
-          return (
-            book.title.toLowerCase().includes(query) ||
-            book.author.toLowerCase().includes(query)
-          );
-        }
-        
-        return true;
-      });
+      // Filter by search query
+      if (searchFilters.query) {
+        const query = searchFilters.query.toLowerCase();
+        return (
+          book.title.toLowerCase().includes(query) ||
+          book.author.toLowerCase().includes(query)
+        );
+      }
       
-      setBooks(filtered);
-    } finally {
-      setIsLoading(false);
-    }
+      return true;
+    });
+    
+    console.log('Filtered results:', filtered.length, 'books');
+    setDisplayedBooks(filtered);
+  };
+
+  // Clear filters function
+  const handleClearFilters = () => {
+    setFilters({ query: '', showAvailableOnly: false });
+    setDisplayedBooks(allBooks);
   };
 
   // Add debug logging for the books state
   useEffect(() => {
-    console.log('Books state updated:', books);
-    console.log('Current number of books in state:', books.length);
-  }, [books]);
+    console.log('All books state:', allBooks.length);
+    console.log('Displayed books state:', displayedBooks.length);
+  }, [allBooks, displayedBooks]);
 
   return (
     <div className="min-h-screen bg-bookshelf-cream/30">
@@ -126,9 +122,9 @@ const Index = () => {
             <div className="flex justify-center py-12">
               <div className="animate-pulse text-bookshelf-teal">Loading books...</div>
             </div>
-          ) : books.length > 0 ? (
+          ) : displayedBooks.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {books.map((book) => (
+              {displayedBooks.map((book) => (
                 <BookCard 
                   key={book.id} 
                   book={book}
@@ -140,7 +136,7 @@ const Index = () => {
               <p className="text-bookshelf-dark/50 mb-4">No books found matching your search.</p>
               <Button 
                 variant="outline" 
-                onClick={() => setFilters({ query: '', showAvailableOnly: false })}
+                onClick={handleClearFilters}
               >
                 Clear Filters
               </Button>
