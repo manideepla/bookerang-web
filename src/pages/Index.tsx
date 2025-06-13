@@ -62,43 +62,53 @@ const Index = () => {
   
   // Handle search by filtering the fetched books locally
   const handleSearch = (searchFilters: SearchFilters) => {
+    console.log('=== SEARCH DEBUG ===');
+    console.log('Search called with filters:', searchFilters);
+    console.log('Total books available to search:', allBooks.length);
+    console.log('Books data:', allBooks);
+    
     setFilters(searchFilters);
     
-    console.log('Searching locally within fetched books...');
-    console.log('Search filters:', searchFilters);
-    
     const filtered = allBooks.filter(book => {
+      console.log(`Checking book: "${book.title}" by ${book.author}`);
+      
       // Filter by availability if needed
       if (searchFilters.showAvailableOnly && !book.isAvailable) {
+        console.log(`  - Filtered out (not available)`);
         return false;
       }
       
       // Filter by search query
       if (searchFilters.query) {
         const query = searchFilters.query.toLowerCase();
-        return (
-          book.title.toLowerCase().includes(query) ||
-          book.author.toLowerCase().includes(query)
-        );
+        const titleMatch = book.title.toLowerCase().includes(query);
+        const authorMatch = book.author.toLowerCase().includes(query);
+        const matches = titleMatch || authorMatch;
+        console.log(`  - Query "${query}" matches: title=${titleMatch}, author=${authorMatch}, result=${matches}`);
+        return matches;
       }
       
+      console.log(`  - No query, including book`);
       return true;
     });
     
     console.log('Filtered results:', filtered.length, 'books');
+    console.log('Filtered book titles:', filtered.map(book => book.title));
+    console.log('=== END SEARCH DEBUG ===');
+    
     setDisplayedBooks(filtered);
   };
 
   // Clear filters function
   const handleClearFilters = () => {
+    console.log('Clearing filters, restoring all books:', allBooks.length);
     setFilters({ query: '', showAvailableOnly: false });
     setDisplayedBooks(allBooks);
   };
 
   // Add debug logging for the books state
   useEffect(() => {
-    console.log('All books state:', allBooks.length);
-    console.log('Displayed books state:', displayedBooks.length);
+    console.log('Books state updated - All books:', allBooks.length, 'Displayed books:', displayedBooks.length);
   }, [allBooks, displayedBooks]);
 
   return (
@@ -114,6 +124,15 @@ const Index = () => {
         </div>
         
         <SearchBar onSearch={handleSearch} />
+        
+        {/* Debug info */}
+        <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
+          <p><strong>Debug Info:</strong></p>
+          <p>Total books loaded: {allBooks.length}</p>
+          <p>Currently displayed: {displayedBooks.length}</p>
+          <p>Current search query: "{filters.query}"</p>
+          <p>Available only filter: {filters.showAvailableOnly ? 'Yes' : 'No'}</p>
+        </div>
         
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-bookshelf-brown mb-6">Available Books</h2>
