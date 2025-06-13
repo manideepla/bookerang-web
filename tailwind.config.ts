@@ -64,14 +64,14 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				bookshelf: {
-					brown: '#8B4513',
-					cream: '#F5F5DC',
-					teal: '#45818E',
-					paper: '#FFF8E7',
-					dark: '#333333',
-					available: '#4CAF50',
-					unavailable: '#F44336',
-					distance: '#9E9E9E',
+					brown: '#D2691E',
+					cream: '#1A1A1A',
+					teal: '#60A5FA',
+					paper: '#27272A',
+					dark: '#E5E7EB',
+					available: '#10B981',
+					unavailable: '#EF4444',
+					distance: '#9CA3AF',
 				}
 			},
 			borderRadius: {
