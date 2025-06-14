@@ -3,9 +3,10 @@ import { Book } from '../types';
 
 interface BookCardProps {
   book: Book;
+  hideOwnerName?: boolean;
 }
 
-export default function BookCard({ book }: BookCardProps) {
+export default function BookCard({ book, hideOwnerName = false }: BookCardProps) {
   // Debug logging to see what data we're receiving
   console.log('BookCard received book data:', book);
 
@@ -22,10 +23,14 @@ export default function BookCard({ book }: BookCardProps) {
       <div className="p-4">
         <h3 className="text-lg font-semibold text-bookshelf-dark truncate group-hover:text-bookshelf-teal transition-colors">{book.title}</h3>
         <p className="text-bookshelf-dark/70 text-sm">{book.author}</p>
-        {book.ownerName ? (
-          <p className="text-bookshelf-teal text-xs mt-1">by {book.ownerName}</p>
-        ) : (
-          <p className="text-bookshelf-dark/40 text-xs mt-1">Owner: Unknown</p>
+        {!hideOwnerName && (
+          <>
+            {book.ownerName ? (
+              <p className="text-bookshelf-teal text-xs mt-1">by {book.ownerName}</p>
+            ) : (
+              <p className="text-bookshelf-dark/40 text-xs mt-1">Owner: Unknown</p>
+            )}
+          </>
         )}
         {book.distance && (
           <p className="text-bookshelf-dark/50 text-xs mt-1">{book.distance}</p>
