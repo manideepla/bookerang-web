@@ -98,28 +98,32 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
     }
     const data = await response.json();
     console.log('Raw API response:', data);
-    console.log('Books data structure check:', data.map((book: any) => ({
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Missing owner data'
-    })));
     
     // Handle both direct array and object with books property
+    let books: any[] = [];
     if (Array.isArray(data)) {
-      return data.map((book: any) => ({
-        ...book,
-        ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name
-      }));
+      books = data;
     } else if (data && Array.isArray(data.books)) {
-      return data.books.map((book: any) => ({
-        ...book,
-        ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name
-      }));
+      books = data.books;
     } else {
       console.warn('Unexpected API response format:', data);
       return [];
     }
+    
+    // Map the books to ensure ownerName is properly set
+    const mappedBooks = books.map((book: any) => ({
+      ...book,
+      ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name
+    }));
+    
+    console.log('Books data structure check:', mappedBooks.map((book: any) => ({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      ownerName: book.ownerName || 'Missing owner data'
+    })));
+    
+    return mappedBooks;
   } catch (error) {
     console.error('Error fetching books:', error);
     return [];
