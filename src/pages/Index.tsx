@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
@@ -76,13 +75,21 @@ const Index = () => {
     console.log('=== SEARCH DEBUG ===');
     console.log('Search called with filters:', searchFilters);
     console.log('Total books available to search:', allBooks.length);
-    console.log('Books data:', allBooks);
+    console.log('Books data structure:', allBooks.map(book => ({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      isAvailable: book.isAvailable,
+      titleType: typeof book.title,
+      authorType: typeof book.author
+    })));
     
     setFilters(searchFilters);
     setHasSearched(true);
     
     const filtered = allBooks.filter(book => {
       console.log(`Checking book: "${book.title}" by ${book.author}`);
+      console.log(`Book object:`, JSON.stringify(book, null, 2));
       
       // Filter by availability if needed
       if (searchFilters.showAvailableOnly && !book.isAvailable) {
@@ -93,10 +100,13 @@ const Index = () => {
       // Filter by search query
       if (searchFilters.query) {
         const query = searchFilters.query.toLowerCase();
-        const titleMatch = book.title.toLowerCase().includes(query);
-        const authorMatch = book.author.toLowerCase().includes(query);
+        const bookTitle = String(book.title || '').toLowerCase();
+        const bookAuthor = String(book.author || '').toLowerCase();
+        const titleMatch = bookTitle.includes(query);
+        const authorMatch = bookAuthor.includes(query);
         const matches = titleMatch || authorMatch;
-        console.log(`  - Query "${query}" matches: title=${titleMatch}, author=${authorMatch}, result=${matches}`);
+        console.log(`  - Query "${query}" vs title "${bookTitle}" vs author "${bookAuthor}"`);
+        console.log(`  - Matches: title=${titleMatch}, author=${authorMatch}, result=${matches}`);
         return matches;
       }
       
