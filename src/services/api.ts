@@ -118,7 +118,8 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
       cover: book.cover || '/placeholder.svg', // Use placeholder if no cover
       isAvailable: book.isAvailable !== undefined ? book.isAvailable : true, // Default to available
       ownerId: book.ownerId || book.owner_id || 0,
-      ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner'
+      ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner',
+      distance: book.distance || 'Unknown distance'
     }));
     
     console.log('Books data structure check:', mappedBooks.map((book: any) => ({
@@ -127,7 +128,8 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
       author: book.author,
       ownerName: book.ownerName,
       cover: book.cover,
-      isAvailable: book.isAvailable
+      isAvailable: book.isAvailable,
+      distance: book.distance
     })));
     
     return mappedBooks;

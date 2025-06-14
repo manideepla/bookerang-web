@@ -6,6 +6,7 @@ export interface Book {
   isAvailable: boolean;
   ownerId: number;
   ownerName?: string;
+  distance?: string;
 }
 
 export interface BookUser {

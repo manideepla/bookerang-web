@@ -27,6 +27,9 @@ export default function BookCard({ book }: BookCardProps) {
         ) : (
           <p className="text-bookshelf-dark/40 text-xs mt-1">Owner: Unknown</p>
         )}
+        {book.distance && (
+          <p className="text-bookshelf-dark/50 text-xs mt-1">{book.distance}</p>
+        )}
       </div>
     </div>
   );
