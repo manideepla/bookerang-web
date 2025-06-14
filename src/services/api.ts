@@ -97,6 +97,12 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
     }
     const data = await response.json();
     console.log('Raw API response:', data);
+    console.log('Books data structure check:', data.map((book: any) => ({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      ownerName: book.ownerName || book.owner_name || book.owner?.name || 'Missing owner data'
+    })));
     
     // Handle both direct array and object with books property
     if (Array.isArray(data)) {
