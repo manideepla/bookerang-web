@@ -35,6 +35,10 @@ export default function SignInForm({ open, onOpenChange, onSuccess }: SignInForm
     setIsLoading(true);
     try {
       await login(username, password);
+      
+      // Dispatch auth state change event immediately
+      window.dispatchEvent(new Event('authStateChange'));
+      
       onSuccess();
       onOpenChange(false);
       setUsername('');

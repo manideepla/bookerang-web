@@ -13,7 +13,7 @@ import { Book as BookType } from '../types';
 const MyBooks = () => {
   const [userBooks, setUserBooks] = useState<BookType[]>([]);
   const [isLoadingBooks, setIsLoadingBooks] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('auth_token'));
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAddBookForm, setShowAddBookForm] = useState(false);
   const { toast } = useToast();
 
@@ -38,45 +38,68 @@ const MyBooks = () => {
     loadUserBooks(); // Refresh the books list
   };
 
-  // Enhanced auth state monitoring
-  useEffect(() => {
-    const checkAuthStatus = () => {
-      const newAuthState = !!localStorage.getItem('auth_token');
-      console.log('Auth state check in MyBooks:', newAuthState);
+  const checkAuthStatus = () => {
+    const authToken = localStorage.getItem('auth_token');
+    const newAuthState = !!authToken;
+    console.log('MyBooks auth check - token exists:', !!authToken, 'current state:', isLoggedIn);
+    
+    if (newAuthState !== isLoggedIn) {
+      console.log('Auth state changed in MyBooks:', isLoggedIn, '->', newAuthState);
       setIsLoggedIn(newAuthState);
       
-      // Clear user books when logged out
       if (!newAuthState) {
+        // User logged out
         setUserBooks([]);
         setShowAddBookForm(false);
       }
+    }
+    
+    return newAuthState;
+  };
+
+  // Enhanced auth state monitoring with immediate check
+  useEffect(() => {
+    // Immediate check on mount
+    const initialAuthState = checkAuthStatus();
+    console.log('MyBooks initial auth state:', initialAuthState);
+
+    // Set up event listeners
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth_token') {
+        console.log('Storage change detected in MyBooks:', e.newValue ? 'token added' : 'token removed');
+        checkAuthStatus();
+      }
     };
 
-    // Check on component mount
-    checkAuthStatus();
-
-    // Listen for storage changes (when auth token is added/removed)
-    window.addEventListener('storage', checkAuthStatus);
-
-    // Listen for custom auth events
-    window.addEventListener('authStateChange', checkAuthStatus);
-
-    // Also listen for beforeunload to catch any auth changes
-    const handleBeforeUnload = () => {
+    const handleAuthStateChange = () => {
+      console.log('Auth state change event received in MyBooks');
       checkAuthStatus();
     };
-    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Listen for custom auth events
+    window.addEventListener('authStateChange', handleAuthStateChange);
+
+    // Also check auth status periodically to catch any missed events
+    const interval = setInterval(checkAuthStatus, 1000);
 
     return () => {
-      window.removeEventListener('storage', checkAuthStatus);
-      window.removeEventListener('authStateChange', checkAuthStatus);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authStateChange', handleAuthStateChange);
+      clearInterval(interval);
     };
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
+    console.log('MyBooks isLoggedIn changed to:', isLoggedIn);
     if (isLoggedIn) {
+      console.log('Loading user books...');
       loadUserBooks();
+    } else {
+      console.log('User not logged in, clearing books');
+      setUserBooks([]);
     }
   }, [isLoggedIn]);
 
