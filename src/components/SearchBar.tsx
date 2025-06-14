@@ -1,19 +1,38 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { SearchFilters } from '../types';
 
 interface SearchBarProps {
   onSearch: (filters: SearchFilters) => void;
+  filters?: SearchFilters;
 }
 
-export default function SearchBar({ onSearch }: SearchBarProps) {
+export default function SearchBar({ onSearch, filters }: SearchBarProps) {
   const [query, setQuery] = useState('');
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+  
+  // Reset form when filters are cleared externally
+  useEffect(() => {
+    if (filters) {
+      setQuery(filters.query);
+      setShowAvailableOnly(filters.showAvailableOnly);
+    }
+  }, [filters]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch({ query, showAvailableOnly });
+  };
+  
+  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = e.target.value;
+    setQuery(newQuery);
+    
+    // Auto-search when query is empty (cleared)
+    if (newQuery === '') {
+      onSearch({ query: '', showAvailableOnly });
+    }
   };
   
   return (
@@ -26,7 +45,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
               type="text"
               placeholder="Search books or authors..."
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={handleQueryChange}
               className="w-full pl-10 pr-4 py-2 border border-bookshelf-teal/30 rounded-md focus:outline-none focus:ring-2 focus:ring-bookshelf-teal"
             />
           </div>

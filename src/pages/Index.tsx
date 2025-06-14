@@ -85,7 +85,7 @@ const Index = () => {
     })));
     
     setFilters(searchFilters);
-    setHasSearched(true);
+    setHasSearched(searchFilters.query !== '' || searchFilters.showAvailableOnly);
     
     const filtered = allBooks.filter(book => {
       console.log(`Checking book: "${book.title}" by ${book.author}`);
@@ -124,7 +124,8 @@ const Index = () => {
   // Clear filters function
   const handleClearFilters = () => {
     console.log('Clearing filters, restoring all books:', allBooks.length);
-    setFilters({ query: '', showAvailableOnly: false });
+    const clearedFilters = { query: '', showAvailableOnly: false };
+    setFilters(clearedFilters);
     setHasSearched(false);
     setDisplayedBooks(allBooks);
   };
@@ -149,7 +150,7 @@ const Index = () => {
           </p>
         </div>
         
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar onSearch={handleSearch} filters={filters} />
         
         {/* Enhanced debug info */}
         <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
