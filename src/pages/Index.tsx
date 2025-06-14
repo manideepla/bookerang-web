@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
@@ -13,6 +12,7 @@ const Index = () => {
   const [allBooks, setAllBooks] = useState<Book[]>([]);
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<'api' | 'mock' | 'none'>('none');
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
     showAvailableOnly: false
@@ -28,34 +28,61 @@ const Index = () => {
         const booksData = await fetchBooks(3000);
         console.log('API response received:', booksData);
         console.log('Number of books received:', booksData?.length);
+        console.log('Data type:', typeof booksData, 'Is array:', Array.isArray(booksData));
         
-        // If API returns data, use it; otherwise fall back to mock data
+        // More robust check for valid API data
         if (Array.isArray(booksData) && booksData.length > 0) {
-          console.log('Setting books state with API data');
-          setAllBooks(booksData);
-          setDisplayedBooks(booksData);
+          // Validate that the data has the expected structure
+          const hasValidStructure = booksData.every(book => 
+            book && 
+            typeof book.id !== 'undefined' && 
+            typeof book.title === 'string' && 
+            typeof book.author === 'string'
+          );
+          
+          if (hasValidStructure) {
+            console.log('Setting books state with valid API data');
+            setAllBooks(booksData);
+            setDisplayedBooks(booksData);
+            setDataSource('api');
+            toast({
+              title: 'Connected to API',
+              description: `Loaded ${booksData.length} books from the backend.`,
+              variant: 'default'
+            });
+          } else {
+            console.log('API data has invalid structure, using mock data');
+            setAllBooks(mockBooks);
+            setDisplayedBooks(mockBooks);
+            setDataSource('mock');
+            toast({
+              title: 'Invalid API Data',
+              description: 'API returned invalid book data. Using sample books.',
+              variant: 'destructive'
+            });
+          }
         } else {
           console.log('API returned empty or invalid data, using mock data');
-          toast({
-            title: 'Using Mock Data',
-            description: 'API returned no data. Using sample books for testing.',
-            variant: 'default'
-          });
           setAllBooks(mockBooks);
           setDisplayedBooks(mockBooks);
+          setDataSource('mock');
+          toast({
+            title: 'No API Data',
+            description: 'API returned no books. Using sample books for testing.',
+            variant: 'default'
+          });
         }
       } catch (error) {
         console.error('Failed to load initial data:', error);
         console.log('Using mock data due to API error');
+        setAllBooks(mockBooks);
+        setDisplayedBooks(mockBooks);
+        setDataSource('mock');
         toast({
           title: 'Connection Error',
           description: 'Failed to connect to the backend. Using mock data instead.',
           variant: 'destructive'
         });
-        
-        // Fallback to mock data if API fails
-        setAllBooks(mockBooks);
-        setDisplayedBooks(mockBooks);
       } finally {
         setIsLoading(false);
       }
@@ -129,13 +156,16 @@ const Index = () => {
         
         <SearchBar onSearch={handleSearch} />
         
-        {/* Debug info */}
+        {/* Enhanced debug info */}
         <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
           <p><strong>Debug Info:</strong></p>
+          <p>Data Source: <span className={`font-bold ${dataSource === 'api' ? 'text-green-600' : 'text-orange-600'}`}>{dataSource.toUpperCase()}</span></p>
           <p>Total books loaded: {allBooks.length}</p>
           <p>Currently displayed: {displayedBooks.length}</p>
           <p>Current search query: "{filters.query}"</p>
           <p>Available only filter: {filters.showAvailableOnly ? 'Yes' : 'No'}</p>
+          {dataSource === 'api' && <p className="text-green-600 mt-2">✅ Successfully connected to backend API</p>}
+          {dataSource === 'mock' && <p className="text-orange-600 mt-2">⚠️ Using mock data (API not available or returned invalid data)</p>}
         </div>
         
         <div className="mb-8">
