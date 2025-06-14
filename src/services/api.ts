@@ -110,17 +110,24 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
       return [];
     }
     
-    // Map the books to ensure ownerName is properly set
+    // Map the books to match the Book interface
     const mappedBooks = books.map((book: any) => ({
-      ...book,
-      ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name
+      id: book.id || 0,
+      title: book.title || 'Unknown Title',
+      author: book.author || 'Unknown Author',
+      cover: book.cover || '/placeholder.svg', // Use placeholder if no cover
+      isAvailable: book.isAvailable !== undefined ? book.isAvailable : true, // Default to available
+      ownerId: book.ownerId || book.owner_id || 0,
+      ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner'
     }));
     
     console.log('Books data structure check:', mappedBooks.map((book: any) => ({
       id: book.id,
       title: book.title,
       author: book.author,
-      ownerName: book.ownerName || 'Missing owner data'
+      ownerName: book.ownerName,
+      cover: book.cover,
+      isAvailable: book.isAvailable
     })));
     
     return mappedBooks;
