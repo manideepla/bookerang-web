@@ -14,18 +14,14 @@ export default function BookCard({ book }: BookCardProps) {
           alt={`${book.title} cover`} 
           className="w-full h-64 object-cover book-cover"
         />
-        <div 
-          className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs text-white font-medium ${
-            book.isAvailable ? 'bg-bookshelf-available' : 'bg-bookshelf-unavailable'
-          }`}
-        >
-          {book.isAvailable ? 'Available' : 'Borrowed'}
-        </div>
       </div>
       
       <div className="p-4">
         <h3 className="text-lg font-semibold text-bookshelf-dark truncate group-hover:text-bookshelf-teal transition-colors">{book.title}</h3>
         <p className="text-bookshelf-dark/70 text-sm">{book.author}</p>
+        {book.ownerName && (
+          <p className="text-bookshelf-teal text-xs mt-1">by {book.ownerName}</p>
+        )}
       </div>
     </div>
   );

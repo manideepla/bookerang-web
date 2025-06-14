@@ -1,4 +1,3 @@
-
 export interface Book {
   id: number;
   title: string;
@@ -6,6 +5,7 @@ export interface Book {
   cover: string;
   isAvailable: boolean;
   ownerId: number;
+  ownerName?: string;
 }
 
 export interface BookUser {
