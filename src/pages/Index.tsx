@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
@@ -29,41 +30,19 @@ const Index = () => {
         const booksData = await fetchBooks(3000);
         console.log('API response received:', booksData);
         console.log('Number of books received:', booksData?.length);
-        console.log('Data type:', typeof booksData, 'Is array:', Array.isArray(booksData));
         
-        // More robust check for valid API data
         if (Array.isArray(booksData) && booksData.length > 0) {
-          // Validate that the data has the expected structure
-          const hasValidStructure = booksData.every(book => 
-            book && 
-            typeof book.id !== 'undefined' && 
-            typeof book.title === 'string' && 
-            typeof book.author === 'string'
-          );
-          
-          if (hasValidStructure) {
-            console.log('Setting books state with valid API data');
-            setAllBooks(booksData);
-            setDisplayedBooks(booksData);
-            setDataSource('api');
-            toast({
-              title: 'Connected to API',
-              description: `Loaded ${booksData.length} books from the backend.`,
-              variant: 'default'
-            });
-          } else {
-            console.log('API data has invalid structure, using mock data');
-            setAllBooks(mockBooks);
-            setDisplayedBooks(mockBooks);
-            setDataSource('mock');
-            toast({
-              title: 'Invalid API Data',
-              description: 'API returned invalid book data. Using sample books.',
-              variant: 'destructive'
-            });
-          }
+          console.log('Setting books state with API data');
+          setAllBooks(booksData);
+          setDisplayedBooks(booksData);
+          setDataSource('api');
+          toast({
+            title: 'Connected to API',
+            description: `Loaded ${booksData.length} books from the backend.`,
+            variant: 'default'
+          });
         } else {
-          console.log('API returned empty or invalid data, using mock data');
+          console.log('API returned empty data, using mock data');
           setAllBooks(mockBooks);
           setDisplayedBooks(mockBooks);
           setDataSource('mock');
