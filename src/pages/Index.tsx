@@ -13,6 +13,7 @@ const Index = () => {
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dataSource, setDataSource] = useState<'api' | 'mock' | 'none'>('none');
+  const [hasSearched, setHasSearched] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
     showAvailableOnly: false
@@ -99,6 +100,7 @@ const Index = () => {
     console.log('Books data:', allBooks);
     
     setFilters(searchFilters);
+    setHasSearched(true);
     
     const filtered = allBooks.filter(book => {
       console.log(`Checking book: "${book.title}" by ${book.author}`);
@@ -134,6 +136,7 @@ const Index = () => {
   const handleClearFilters = () => {
     console.log('Clearing filters, restoring all books:', allBooks.length);
     setFilters({ query: '', showAvailableOnly: false });
+    setHasSearched(false);
     setDisplayedBooks(allBooks);
   };
 
@@ -141,6 +144,9 @@ const Index = () => {
   useEffect(() => {
     console.log('Books state updated - All books:', allBooks.length, 'Displayed books:', displayedBooks.length);
   }, [allBooks, displayedBooks]);
+
+  const shouldShowNoResults = hasSearched && displayedBooks.length === 0 && !isLoading;
+  const shouldShowBooks = displayedBooks.length > 0 && !isLoading;
 
   return (
     <div className="min-h-screen bg-bookshelf-cream/30">
@@ -164,6 +170,8 @@ const Index = () => {
           <p>Currently displayed: {displayedBooks.length}</p>
           <p>Current search query: "{filters.query}"</p>
           <p>Available only filter: {filters.showAvailableOnly ? 'Yes' : 'No'}</p>
+          <p>Has searched: {hasSearched ? 'Yes' : 'No'}</p>
+          <p>Should show no results: {shouldShowNoResults ? 'Yes' : 'No'}</p>
           {dataSource === 'api' && <p className="text-green-600 mt-2">✅ Successfully connected to backend API</p>}
           {dataSource === 'mock' && <p className="text-orange-600 mt-2">⚠️ Using mock data (API not available or returned invalid data)</p>}
         </div>
@@ -175,7 +183,7 @@ const Index = () => {
             <div className="flex justify-center py-12">
               <div className="animate-pulse text-bookshelf-teal">Loading books...</div>
             </div>
-          ) : displayedBooks.length > 0 ? (
+          ) : shouldShowBooks ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {displayedBooks.map((book) => (
                 <BookCard 
@@ -184,15 +192,24 @@ const Index = () => {
                 />
               ))}
             </div>
-          ) : (
+          ) : shouldShowNoResults ? (
             <div className="text-center py-12">
-              <p className="text-bookshelf-dark/50 mb-4">No books found matching your search.</p>
+              <p className="text-bookshelf-dark/50 mb-4">No books found matching your search criteria.</p>
               <Button 
                 variant="outline" 
                 onClick={handleClearFilters}
               >
                 Clear Filters
               </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedBooks.map((book) => (
+                <BookCard 
+                  key={book.id} 
+                  book={book}
+                />
+              ))}
             </div>
           )}
         </div>
