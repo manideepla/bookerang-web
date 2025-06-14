@@ -38,6 +38,42 @@ const MyBooks = () => {
     loadUserBooks(); // Refresh the books list
   };
 
+  // Enhanced auth state monitoring
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const newAuthState = !!localStorage.getItem('auth_token');
+      console.log('Auth state check in MyBooks:', newAuthState);
+      setIsLoggedIn(newAuthState);
+      
+      // Clear user books when logged out
+      if (!newAuthState) {
+        setUserBooks([]);
+        setShowAddBookForm(false);
+      }
+    };
+
+    // Check on component mount
+    checkAuthStatus();
+
+    // Listen for storage changes (when auth token is added/removed)
+    window.addEventListener('storage', checkAuthStatus);
+
+    // Listen for custom auth events
+    window.addEventListener('authStateChange', checkAuthStatus);
+
+    // Also listen for beforeunload to catch any auth changes
+    const handleBeforeUnload = () => {
+      checkAuthStatus();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('storage', checkAuthStatus);
+      window.removeEventListener('authStateChange', checkAuthStatus);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
   useEffect(() => {
     if (isLoggedIn) {
       loadUserBooks();
