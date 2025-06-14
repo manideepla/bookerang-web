@@ -1,5 +1,5 @@
 
-import { BookUser, Book } from '../types';
+import { BookUser } from '../types';
 
 export const users: BookUser[] = [
   {
@@ -33,88 +33,5 @@ export const users: BookUser[] = [
     distance: "1.5 miles away",
     books: [7, 10],
     location: { lat: 40.710, lng: -74.001 },
-  },
-];
-
-export const books: Book[] = [
-  {
-    id: 1,
-    title: "The Silent Patient",
-    author: "Alex Michaelides",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1582759969i/40097951.jpg",
-    isAvailable: true,
-    ownerId: 1,
-  },
-  {
-    id: 2,
-    title: "Educated",
-    author: "Tara Westover",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1506026635i/35133922.jpg",
-    isAvailable: true,
-    ownerId: 2,
-  },
-  {
-    id: 3,
-    title: "Where the Crawdads Sing",
-    author: "Delia Owens",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1582135294i/36809135.jpg",
-    isAvailable: false,
-    ownerId: 1,
-  },
-  {
-    id: 4,
-    title: "Atomic Habits",
-    author: "James Clear",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1655988385i/40121378.jpg",
-    isAvailable: true,
-    ownerId: 3,
-  },
-  {
-    id: 5,
-    title: "Becoming",
-    author: "Michelle Obama",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1528206996i/38746485.jpg",
-    isAvailable: false,
-    ownerId: 3,
-  },
-  {
-    id: 6,
-    title: "The Midnight Library",
-    author: "Matt Haig",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190253i/52578297.jpg",
-    isAvailable: true,
-    ownerId: 2,
-  },
-  {
-    id: 7,
-    title: "Project Hail Mary",
-    author: "Andy Weir",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1597695864i/54493401.jpg",
-    isAvailable: true,
-    ownerId: 4,
-  },
-  {
-    id: 8,
-    title: "The Four Winds",
-    author: "Kristin Hannah",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1610497192i/53138081.jpg",
-    isAvailable: true,
-    ownerId: 1,
-  },
-  {
-    id: 9,
-    title: "The Vanishing Half",
-    author: "Brit Bennett",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1577090827i/51791252.jpg",
-    isAvailable: false,
-    ownerId: 3,
-  },
-  {
-    id: 10,
-    title: "A Gentleman in Moscow",
-    author: "Amor Towles",
-    cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1459524472i/29430012.jpg",
-    isAvailable: true,
-    ownerId: 4,
   },
 ];

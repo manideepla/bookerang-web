@@ -1,9 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
-import { books as mockBooks } from '../data/mockData';
 import { Book, SearchFilters } from '../types';
 import { fetchBooks } from '../services/api';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ const Index = () => {
   const [allBooks, setAllBooks] = useState<Book[]>([]);
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [dataSource, setDataSource] = useState<'api' | 'mock' | 'none'>('none');
+  const [dataSource, setDataSource] = useState<'api' | 'none'>('none');
   const [hasSearched, setHasSearched] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
@@ -41,25 +41,24 @@ const Index = () => {
             variant: 'default'
           });
         } else {
-          console.log('API returned empty data, using mock data');
-          setAllBooks(mockBooks);
-          setDisplayedBooks(mockBooks);
-          setDataSource('mock');
+          console.log('API returned empty data');
+          setAllBooks([]);
+          setDisplayedBooks([]);
+          setDataSource('none');
           toast({
-            title: 'No API Data',
-            description: 'API returned no books. Using sample books for testing.',
+            title: 'No Books Available',
+            description: 'No books found from the backend.',
             variant: 'default'
           });
         }
       } catch (error) {
-        console.error('Failed to load initial data:', error);
-        console.log('Using mock data due to API error');
-        setAllBooks(mockBooks);
-        setDisplayedBooks(mockBooks);
-        setDataSource('mock');
+        console.error('Failed to load data from API:', error);
+        setAllBooks([]);
+        setDisplayedBooks([]);
+        setDataSource('none');
         toast({
           title: 'Connection Error',
-          description: 'Failed to connect to the backend. Using mock data instead.',
+          description: 'Failed to connect to the backend.',
           variant: 'destructive'
         });
       } finally {
@@ -75,21 +74,12 @@ const Index = () => {
     console.log('=== SEARCH DEBUG ===');
     console.log('Search called with filters:', searchFilters);
     console.log('Total books available to search:', allBooks.length);
-    console.log('Books data structure:', allBooks.map(book => ({
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      isAvailable: book.isAvailable,
-      titleType: typeof book.title,
-      authorType: typeof book.author
-    })));
     
     setFilters(searchFilters);
     setHasSearched(searchFilters.query !== '' || searchFilters.showAvailableOnly);
     
     const filtered = allBooks.filter(book => {
       console.log(`Checking book: "${book.title}" by ${book.author}`);
-      console.log(`Book object:`, JSON.stringify(book, null, 2));
       
       // Filter by availability if needed
       if (searchFilters.showAvailableOnly && !book.isAvailable) {
@@ -137,6 +127,7 @@ const Index = () => {
 
   const shouldShowNoResults = hasSearched && displayedBooks.length === 0 && !isLoading;
   const shouldShowBooks = displayedBooks.length > 0 && !isLoading;
+  const shouldShowEmptyState = !isLoading && allBooks.length === 0 && !hasSearched;
 
   return (
     <div className="min-h-screen bg-bookshelf-cream/30">
@@ -155,7 +146,7 @@ const Index = () => {
         {/* Enhanced debug info */}
         <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
           <p><strong>Debug Info:</strong></p>
-          <p>Data Source: <span className={`font-bold ${dataSource === 'api' ? 'text-green-600' : 'text-orange-600'}`}>{dataSource.toUpperCase()}</span></p>
+          <p>Data Source: <span className={`font-bold ${dataSource === 'api' ? 'text-green-600' : 'text-red-600'}`}>{dataSource.toUpperCase()}</span></p>
           <p>Total books loaded: {allBooks.length}</p>
           <p>Currently displayed: {displayedBooks.length}</p>
           <p>Current search query: "{filters.query}"</p>
@@ -163,7 +154,7 @@ const Index = () => {
           <p>Has searched: {hasSearched ? 'Yes' : 'No'}</p>
           <p>Should show no results: {shouldShowNoResults ? 'Yes' : 'No'}</p>
           {dataSource === 'api' && <p className="text-green-600 mt-2">✅ Successfully connected to backend API</p>}
-          {dataSource === 'mock' && <p className="text-orange-600 mt-2">⚠️ Using mock data (API not available or returned invalid data)</p>}
+          {dataSource === 'none' && <p className="text-red-600 mt-2">❌ No data available from API</p>}
         </div>
         
         <div className="mb-8">
@@ -191,6 +182,11 @@ const Index = () => {
               >
                 Clear Filters
               </Button>
+            </div>
+          ) : shouldShowEmptyState ? (
+            <div className="text-center py-12">
+              <p className="text-bookshelf-dark/50 mb-4">No books available from the backend.</p>
+              <p className="text-bookshelf-dark/40 text-sm">Check your API connection.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
