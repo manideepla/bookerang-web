@@ -1,3 +1,4 @@
+
 import { Book } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -101,14 +102,20 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
       id: book.id,
       title: book.title,
       author: book.author,
-      ownerName: book.ownerName || book.owner_name || book.owner?.name || 'Missing owner data'
+      ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Missing owner data'
     })));
     
     // Handle both direct array and object with books property
     if (Array.isArray(data)) {
-      return data;
+      return data.map((book: any) => ({
+        ...book,
+        ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name
+      }));
     } else if (data && Array.isArray(data.books)) {
-      return data.books;
+      return data.books.map((book: any) => ({
+        ...book,
+        ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name
+      }));
     } else {
       console.warn('Unexpected API response format:', data);
       return [];
