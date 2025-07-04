@@ -8,7 +8,7 @@ let authToken: string | null = null;
 
 export const login = async (username: string, password: string): Promise<string> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/user/login`, {
+    const response = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -172,7 +172,7 @@ export const searchBooks = async (query: string, showAvailableOnly: boolean): Pr
 export const fetchUserBooks = async (): Promise<Book[]> => {
   try {
     const headers = getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/books/user`, {
+    const response = await fetch(`${API_BASE_URL}/books`, {
       headers
     });
     if (!response.ok) {
