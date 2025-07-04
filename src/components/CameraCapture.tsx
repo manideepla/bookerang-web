@@ -128,6 +128,11 @@ export default function CameraCapture({ open, onOpenChange, onCapture }: CameraC
     onOpenChange(false);
   }, [stopCamera, onOpenChange]);
 
+  const handleTryAgain = useCallback(() => {
+    setError(null);
+    startCamera();
+  }, [startCamera]);
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
@@ -140,7 +145,7 @@ export default function CameraCapture({ open, onOpenChange, onCapture }: CameraC
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-red-800 text-sm">{error}</p>
               <Button 
-                onClick={() => setError(null)} 
+                onClick={handleTryAgain} 
                 variant="outline" 
                 size="sm" 
                 className="mt-2"
@@ -161,29 +166,27 @@ export default function CameraCapture({ open, onOpenChange, onCapture }: CameraC
             </div>
           )}
           
+          {/* Video element - always rendered but hidden when not streaming */}
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            className={`w-full rounded-lg ${isStreaming ? 'block' : 'hidden'}`}
+            style={{ maxHeight: '300px', objectFit: 'cover' }}
+          />
+          
           {isStreaming && (
-            <div className="space-y-4">
-              <div className="relative">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full rounded-lg"
-                  style={{ maxHeight: '300px', objectFit: 'cover' }}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={capturePhoto}
-                  className="flex-1 bg-bookshelf-brown hover:bg-bookshelf-brown/80"
-                >
-                  <Camera className="mr-2 h-4 w-4" />
-                  Capture
-                </Button>
-                <Button variant="outline" onClick={handleClose}>
-                  Cancel
-                </Button>
-              </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={capturePhoto}
+                className="flex-1 bg-bookshelf-brown hover:bg-bookshelf-brown/80"
+              >
+                <Camera className="mr-2 h-4 w-4" />
+                Capture
+              </Button>
+              <Button variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
             </div>
           )}
           
