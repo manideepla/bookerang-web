@@ -1,4 +1,3 @@
-
 import { Book } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -196,23 +195,31 @@ export const fetchUserBooks = async (): Promise<Book[]> => {
   }
 };
 
-export const addBook = async (title: string, author: string): Promise<Book> => {
+export const addBook = async (title: string, author: string, bookPhoto?: File): Promise<Book> => {
   try {
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('author', author);
+    
+    if (bookPhoto) {
+      formData.append('photo', bookPhoto);
+    }
+
     const headers = {
       ...getAuthHeaders(),
-      'Content-Type': 'application/json'
+      // Don't set Content-Type header when using FormData, let the browser set it
     };
+    
     const response = await fetch(`${API_BASE_URL}/books/add`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        title,
-        author
-      })
+      body: formData
     });
+    
     if (!response.ok) {
       throw new Error(`Error adding book: ${response.status}`);
     }
+    
     const data = await response.json();
     console.log('Book added successfully:', data);
     return data;

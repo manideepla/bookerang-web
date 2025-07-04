@@ -56,7 +56,7 @@ export default function AddBookForm({ open, onOpenChange, onSuccess }: AddBookFo
     setIsLoading(true);
 
     try {
-      await addBook(title.trim(), author.trim());
+      await addBook(title.trim(), author.trim(), bookPhoto || undefined);
       
       toast({
         title: "Book Added!",
