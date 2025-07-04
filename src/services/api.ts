@@ -72,7 +72,7 @@ export const getAuthHeaders = (): HeadersInit => {
 export const fetchUserProfile = async (): Promise<any> => {
   try {
     const headers = getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/user`, {
+    const response = await fetch(`${API_BASE_URL}/user/me`, {
       headers
     });
     if (!response.ok) {
