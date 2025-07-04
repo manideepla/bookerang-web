@@ -13,12 +13,22 @@ interface CameraCaptureProps {
 export default function CameraCapture({ open, onOpenChange, onCapture }: CameraCaptureProps) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   const startCamera = useCallback(async () => {
+    console.log('Starting camera...');
+    setError(null);
+    
     try {
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera not supported in this browser');
+      }
+      
+      console.log('Requesting camera access...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           width: { ideal: 1280 },
@@ -27,18 +37,39 @@ export default function CameraCapture({ open, onOpenChange, onCapture }: CameraC
         } 
       });
       
+      console.log('Camera access granted, setting up video stream...');
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         setIsStreaming(true);
+        console.log('Video stream setup complete');
+      } else {
+        console.error('Video ref is null');
+        throw new Error('Video element not found');
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
-      alert('Could not access camera. Please check your permissions.');
+      let errorMessage = 'Could not access camera. ';
+      
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage += 'Please allow camera permissions and try again.';
+        } else if (error.name === 'NotFoundError') {
+          errorMessage += 'No camera found on this device.';
+        } else if (error.name === 'NotSupportedError') {
+          errorMessage += 'Camera not supported in this browser.';
+        } else {
+          errorMessage += error.message;
+        }
+      }
+      
+      setError(errorMessage);
     }
   }, []);
 
   const stopCamera = useCallback(() => {
+    console.log('Stopping camera...');
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
@@ -47,6 +78,7 @@ export default function CameraCapture({ open, onOpenChange, onCapture }: CameraC
   }, []);
 
   const capturePhoto = useCallback(() => {
+    console.log('Capturing photo...');
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
@@ -60,31 +92,39 @@ export default function CameraCapture({ open, onOpenChange, onCapture }: CameraC
         const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
         setCapturedImage(imageDataUrl);
         stopCamera();
+        console.log('Photo captured successfully');
       }
     }
   }, [stopCamera]);
 
   const retakePhoto = useCallback(() => {
+    console.log('Retaking photo...');
     setCapturedImage(null);
+    setError(null);
     startCamera();
   }, [startCamera]);
 
   const confirmPhoto = useCallback(() => {
+    console.log('Confirming photo...');
     if (capturedImage && canvasRef.current) {
       canvasRef.current.toBlob((blob) => {
         if (blob) {
           const file = new File([blob], 'book-photo.jpg', { type: 'image/jpeg' });
           onCapture(file);
           setCapturedImage(null);
+          setError(null);
           onOpenChange(false);
+          console.log('Photo confirmed and sent to parent');
         }
       }, 'image/jpeg', 0.8);
     }
   }, [capturedImage, onCapture, onOpenChange]);
 
   const handleClose = useCallback(() => {
+    console.log('Closing camera modal...');
     stopCamera();
     setCapturedImage(null);
+    setError(null);
     onOpenChange(false);
   }, [stopCamera, onOpenChange]);
 
@@ -96,7 +136,21 @@ export default function CameraCapture({ open, onOpenChange, onCapture }: CameraC
         </DialogHeader>
         
         <div className="space-y-4">
-          {!isStreaming && !capturedImage && (
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-800 text-sm">{error}</p>
+              <Button 
+                onClick={() => setError(null)} 
+                variant="outline" 
+                size="sm" 
+                className="mt-2"
+              >
+                Try Again
+              </Button>
+            </div>
+          )}
+          
+          {!isStreaming && !capturedImage && !error && (
             <div className="text-center py-8">
               <Camera className="mx-auto h-16 w-16 text-gray-400 mb-4" />
               <p className="text-gray-600 mb-4">Click below to start your camera</p>
