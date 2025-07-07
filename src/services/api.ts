@@ -202,7 +202,7 @@ export const addBook = async (title: string, author: string, bookPhoto?: File): 
     formData.append('author', author);
     
     if (bookPhoto) {
-      formData.append('photo', bookPhoto);
+      formData.append('newBook', bookPhoto);
     }
 
     const headers = {
