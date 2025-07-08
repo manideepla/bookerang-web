@@ -35,14 +35,10 @@ export default function BookCard({ book, hideOwnerName = false }: BookCardProps)
         
         {/* Placeholder for books without covers or failed image loads */}
         <div 
-          className={`w-full h-64 bg-gradient-to-br from-bookshelf-brown/20 to-bookshelf-teal/20 flex flex-col items-center justify-center text-bookshelf-brown ${hasValidCover ? 'hidden' : 'flex'}`}
+          className={`w-full h-64 bg-gradient-to-br from-bookshelf-brown/10 to-bookshelf-teal/10 border-2 border-dashed border-bookshelf-brown/20 flex items-center justify-center ${hasValidCover ? 'hidden' : 'flex'}`}
           style={hasValidCover ? { display: 'none' } : { display: 'flex' }}
         >
-          <div className="text-6xl mb-4">📚</div>
-          <div className="text-center px-4">
-            <div className="font-semibold text-sm line-clamp-2">{book.title}</div>
-            <div className="text-xs text-bookshelf-brown/70 mt-1">{book.author}</div>
-          </div>
+          <Book className="w-20 h-20 text-bookshelf-brown/30" />
         </div>
       </div>
       
@@ -57,9 +53,6 @@ export default function BookCard({ book, hideOwnerName = false }: BookCardProps)
               <p className="text-bookshelf-dark/40 text-xs mt-1">Owner: Unknown</p>
             )}
           </>
-        )}
-        {book.distance && (
-          <p className="text-bookshelf-dark/50 text-xs mt-1">{book.distance}</p>
         )}
       </div>
     </div>
