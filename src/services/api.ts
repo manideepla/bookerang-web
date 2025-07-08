@@ -1,4 +1,3 @@
-
 import { Book } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -89,52 +88,80 @@ export const fetchUserProfile = async (): Promise<any> => {
 
 export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
   try {
+    console.log('🔍 Starting fetchBooks API call...');
+    console.log('🔗 API URL:', `${API_BASE_URL}/books?radius=${radius}`);
+    
     const headers = getAuthHeaders();
+    console.log('🔑 Request headers:', headers);
+    
     const response = await fetch(`${API_BASE_URL}/books?radius=${radius}`, {
       headers
     });
+    
+    console.log('📡 Response status:', response.status);
+    console.log('📡 Response ok:', response.ok);
+    
     if (!response.ok) {
+      console.error('❌ API response not ok:', response.status, response.statusText);
       throw new Error(`Error fetching books: ${response.status}`);
     }
+    
     const data = await response.json();
-    console.log('Raw API response:', data);
+    console.log('📦 Raw API response:', data);
+    console.log('📦 Response type:', typeof data);
+    console.log('📦 Is array:', Array.isArray(data));
     
     // Handle both direct array and object with books property
     let books: any[] = [];
     if (Array.isArray(data)) {
       books = data;
+      console.log('✅ Using direct array format');
     } else if (data && Array.isArray(data.books)) {
       books = data.books;
+      console.log('✅ Using object.books format');
     } else {
-      console.warn('Unexpected API response format:', data);
+      console.warn('⚠️ Unexpected API response format:', data);
       return [];
     }
     
-    // Map the books to match the Book interface
-    const mappedBooks = books.map((book: any) => ({
-      id: book.id || 0,
-      title: book.title || 'Unknown Title',
-      author: book.author || 'Unknown Author',
-      cover: book.coverUrl || book.cover || '/placeholder.svg', // Use coverUrl from API or fallback
-      isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
-      ownerId: book.ownerId || book.owner_id || 0,
-      ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner',
-      distance: book.distance || 'Unknown distance'
-    }));
+    console.log('📚 Number of books before mapping:', books.length);
     
-    console.log('Books data structure check:', mappedBooks.map((book: any) => ({
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      ownerName: book.ownerName,
-      cover: book.cover,
-      isAvailable: book.isAvailable,
-      distance: book.distance
-    })));
+    // Map the books to match the Book interface
+    const mappedBooks = books.map((book: any, index: number) => {
+      console.log(`📖 Processing book ${index + 1}:`, {
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        coverUrl: book.coverUrl,
+        cover: book.cover,
+        isAvailable: book.isAvailable,
+        ownerName: book.username || book.ownerName || book.owner_name
+      });
+      
+      return {
+        id: book.id || 0,
+        title: book.title || 'Unknown Title',
+        author: book.author || 'Unknown Author',
+        cover: book.coverUrl || book.cover || '/placeholder.svg', // Use coverUrl from API or fallback
+        isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
+        ownerId: book.ownerId || book.owner_id || 0,
+        ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner',
+        distance: book.distance || 'Unknown distance'
+      };
+    });
+    
+    console.log('✅ Final mapped books:', mappedBooks.length);
+    console.log('📋 Book titles:', mappedBooks.map(b => b.title));
     
     return mappedBooks;
   } catch (error) {
-    console.error('Error fetching books:', error);
+    console.error('💥 fetchBooks error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+    console.error('💥 Is this a network error?', error instanceof TypeError);
+    console.error('💥 Error fetching books:', error);
     return [];
   }
 };
