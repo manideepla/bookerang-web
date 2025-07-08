@@ -1,4 +1,5 @@
 
+import { Book as BookIcon } from 'lucide-react';
 import { Book } from '../types';
 
 interface BookCardProps {
@@ -38,7 +39,7 @@ export default function BookCard({ book, hideOwnerName = false }: BookCardProps)
           className={`w-full h-64 bg-gradient-to-br from-bookshelf-brown/10 to-bookshelf-teal/10 border-2 border-dashed border-bookshelf-brown/20 flex items-center justify-center ${hasValidCover ? 'hidden' : 'flex'}`}
           style={hasValidCover ? { display: 'none' } : { display: 'flex' }}
         >
-          <Book className="w-20 h-20 text-bookshelf-brown/30" />
+          <BookIcon className="w-20 h-20 text-bookshelf-brown/30" />
         </div>
       </div>
       
