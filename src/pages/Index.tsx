@@ -4,8 +4,9 @@ import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
+import RadiusSelector from '../components/RadiusSelector';
 import { Book, SearchFilters } from '../types';
-import { fetchBooks } from '../services/api';
+import { fetchNearbyBooks } from '../services/api';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
@@ -14,60 +15,68 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [dataSource, setDataSource] = useState<'api' | 'none'>('none');
   const [hasSearched, setHasSearched] = useState(false);
+  const [radius, setRadius] = useState(3000);
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
     showAvailableOnly: false
   });
   const { toast } = useToast();
   
-  // Fetch initial data
-  useEffect(() => {
-    const loadInitialData = async () => {
-      setIsLoading(true);
-      try {
-        console.log('Fetching books from API...');
-        const booksData = await fetchBooks(3000);
-        console.log('API response received:', booksData);
-        console.log('Number of books received:', booksData?.length);
-        
-        if (Array.isArray(booksData) && booksData.length > 0) {
-          console.log('Setting books state with API data');
-          setAllBooks(booksData);
-          setDisplayedBooks(booksData);
-          setDataSource('api');
-          toast({
-            title: 'Connected to API',
-            description: `Loaded ${booksData.length} books from the backend.`,
-            variant: 'default'
-          });
-        } else {
-          console.log('API returned empty data');
-          setAllBooks([]);
-          setDisplayedBooks([]);
-          setDataSource('none');
-          toast({
-            title: 'No Books Available',
-            description: 'No books found from the backend.',
-            variant: 'default'
-          });
-        }
-      } catch (error) {
-        console.error('Failed to load data from API:', error);
+  // Fetch books based on radius
+  const loadBooks = async (searchRadius: number) => {
+    setIsLoading(true);
+    try {
+      console.log('Fetching nearby books from API with radius:', searchRadius);
+      const booksData = await fetchNearbyBooks(searchRadius);
+      console.log('API response received:', booksData);
+      console.log('Number of books received:', booksData?.length);
+      
+      if (Array.isArray(booksData) && booksData.length > 0) {
+        console.log('Setting books state with API data');
+        setAllBooks(booksData);
+        setDisplayedBooks(booksData);
+        setDataSource('api');
+        toast({
+          title: 'Books Updated',
+          description: `Found ${booksData.length} books within ${searchRadius >= 1000 ? (searchRadius/1000).toFixed(1) + 'km' : searchRadius + 'm'}.`,
+          variant: 'default'
+        });
+      } else {
+        console.log('API returned empty data');
         setAllBooks([]);
         setDisplayedBooks([]);
         setDataSource('none');
         toast({
-          title: 'Connection Error',
-          description: 'Failed to connect to the backend.',
-          variant: 'destructive'
+          title: 'No Books Found',
+          description: `No books found within ${searchRadius >= 1000 ? (searchRadius/1000).toFixed(1) + 'km' : searchRadius + 'm'}.`,
+          variant: 'default'
         });
-      } finally {
-        setIsLoading(false);
       }
-    };
-    
-    loadInitialData();
-  }, [toast]);
+    } catch (error) {
+      console.error('Failed to load data from API:', error);
+      setAllBooks([]);
+      setDisplayedBooks([]);
+      setDataSource('none');
+      toast({
+        title: 'Connection Error',
+        description: 'Failed to connect to the backend.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    loadBooks(radius);
+  }, []);
+
+  // Handle radius change
+  const handleRadiusChange = (newRadius: number) => {
+    setRadius(newRadius);
+    loadBooks(newRadius);
+  };
   
   // Handle search by filtering the fetched books locally
   const handleSearch = (searchFilters: SearchFilters) => {
@@ -135,10 +144,15 @@ const Index = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto mb-8">
-          <h1 className="text-3xl font-bold text-bookshelf-brown mb-2">Discover Books Around You</h1>
-          <p className="text-bookshelf-dark/70">
-            Borrow books from neighbors and share your collection with the community
-          </p>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-bookshelf-brown mb-2">Discover Books Around You</h1>
+              <p className="text-bookshelf-dark/70">
+                Borrow books from neighbors and share your collection with the community
+              </p>
+            </div>
+            <RadiusSelector radius={radius} onRadiusChange={handleRadiusChange} />
+          </div>
         </div>
         
         <SearchBar onSearch={handleSearch} filters={filters} />
@@ -147,6 +161,7 @@ const Index = () => {
         <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
           <p><strong>Debug Info:</strong></p>
           <p>Data Source: <span className={`font-bold ${dataSource === 'api' ? 'text-green-600' : 'text-red-600'}`}>{dataSource.toUpperCase()}</span></p>
+          <p>Search radius: {radius >= 1000 ? (radius/1000).toFixed(1) + 'km' : radius + 'm'}</p>
           <p>Total books loaded: {allBooks.length}</p>
           <p>Currently displayed: {displayedBooks.length}</p>
           <p>Current search query: "{filters.query}"</p>

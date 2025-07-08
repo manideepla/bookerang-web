@@ -86,6 +86,86 @@ export const fetchUserProfile = async (): Promise<any> => {
   }
 };
 
+export const fetchNearbyBooks = async (radius: number = 3000): Promise<Book[]> => {
+  try {
+    console.log('🔍 Starting fetchNearbyBooks API call...');
+    console.log('🔗 API URL:', `${API_BASE_URL}/books/nearby?radius=${radius}`);
+    
+    const headers = getAuthHeaders();
+    console.log('🔑 Request headers:', headers);
+    
+    const response = await fetch(`${API_BASE_URL}/books/nearby?radius=${radius}`, {
+      headers
+    });
+    
+    console.log('📡 Response status:', response.status);
+    console.log('📡 Response ok:', response.ok);
+    
+    if (!response.ok) {
+      console.error('❌ API response not ok:', response.status, response.statusText);
+      throw new Error(`Error fetching nearby books: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('📦 Raw API response:', data);
+    console.log('📦 Response type:', typeof data);
+    console.log('📦 Is array:', Array.isArray(data));
+    
+    // Handle both direct array and object with books property
+    let books: any[] = [];
+    if (Array.isArray(data)) {
+      books = data;
+      console.log('✅ Using direct array format');
+    } else if (data && Array.isArray(data.books)) {
+      books = data.books;
+      console.log('✅ Using object.books format');
+    } else {
+      console.warn('⚠️ Unexpected API response format:', data);
+      return [];
+    }
+    
+    console.log('📚 Number of books before mapping:', books.length);
+    
+    // Map the books to match the Book interface
+    const mappedBooks = books.map((book: any, index: number) => {
+      console.log(`📖 Processing book ${index + 1}:`, {
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        coverUrl: book.coverUrl,
+        cover: book.cover,
+        isAvailable: book.isAvailable,
+        ownerName: book.username || book.ownerName || book.owner_name
+      });
+      
+      return {
+        id: book.id || 0,
+        title: book.title || 'Unknown Title',
+        author: book.author || 'Unknown Author',
+        cover: book.coverUrl || book.cover || '/placeholder.svg',
+        isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
+        ownerId: book.ownerId || book.owner_id || 0,
+        ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner',
+        distance: book.distance || 'Unknown distance'
+      };
+    });
+    
+    console.log('✅ Final mapped books:', mappedBooks.length);
+    console.log('📋 Book titles:', mappedBooks.map(b => b.title));
+    
+    return mappedBooks;
+  } catch (error) {
+    console.error('💥 fetchNearbyBooks error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+    console.error('💥 Is this a network error?', error instanceof TypeError);
+    console.error('💥 Error fetching nearby books:', error);
+    return [];
+  }
+};
+
 export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
   try {
     console.log('🔍 Starting fetchBooks API call...');
@@ -142,7 +222,7 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
         id: book.id || 0,
         title: book.title || 'Unknown Title',
         author: book.author || 'Unknown Author',
-        cover: book.coverUrl || book.cover || '/placeholder.svg', // Use coverUrl from API or fallback
+        cover: book.coverUrl || book.cover || '/placeholder.svg',
         isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
         ownerId: book.ownerId || book.owner_id || 0,
         ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner',
@@ -224,7 +304,7 @@ export const fetchUserBooks = async (): Promise<Book[]> => {
       id: book.id || 0,
       title: book.title || 'Unknown Title',
       author: book.author || 'Unknown Author',
-      cover: book.coverUrl || book.cover || '/placeholder.svg', // Use coverUrl from API or fallback
+      cover: book.coverUrl || book.cover || '/placeholder.svg',
       isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
       ownerId: book.ownerId || book.owner_id || 0,
       ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner',
@@ -271,9 +351,9 @@ export const addBook = async (title: string, author: string, bookPhoto?: File): 
       id: data.id || 0,
       title: title,
       author: author,
-      cover: data.coverUrl || '/placeholder.svg', // Use coverUrl from API response
+      cover: data.coverUrl || '/placeholder.svg',
       isAvailable: true,
-      ownerId: 0, // Will be set by backend
+      ownerId: 0,
       ownerName: 'You',
       distance: 'Your book'
     };
