@@ -109,7 +109,7 @@ export default function CameraCapture({ open, onOpenChange, onCapture }: CameraC
     if (capturedImage && canvasRef.current) {
       canvasRef.current.toBlob((blob) => {
         if (blob) {
-          const file = new File([blob], 'book-photo.jpg', { type: 'image/jpeg' });
+          const file = new File([blob], 'cover-photo.jpg', { type: 'image/jpeg' });
           onCapture(file);
           setCapturedImage(null);
           setError(null);
