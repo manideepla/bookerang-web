@@ -1,4 +1,3 @@
-
 import { BookIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Book } from '../types';
@@ -18,7 +17,7 @@ export default function BookCard({ book, hideOwnerName = false }: BookCardProps)
   const hasValidCover = book.cover && book.cover !== '/placeholder.svg' && book.cover.trim() !== '';
 
   const handleClick = () => {
-    navigate(`/book/${book.id}`);
+    navigate(`/book/${book.id}`, { state: { book } });
   };
 
   return (

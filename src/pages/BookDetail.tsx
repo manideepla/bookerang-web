@@ -1,44 +1,21 @@
 
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Book as BookIcon, ArrowLeft, User, MapPin } from 'lucide-react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { BookIcon, ArrowLeft, User, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Book } from '../types';
-
-// Mock book data - in a real app, this would come from an API call
-const mockBooks: Book[] = [
-  {
-    id: 1,
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    cover: "/placeholder.svg",
-    isAvailable: true,
-    ownerId: 1,
-    ownerName: "Alice Johnson",
-    distance: "0.5km"
-  },
-  {
-    id: 2,
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
-    cover: "/placeholder.svg",
-    isAvailable: true,
-    ownerId: 2,
-    ownerName: "Bob Smith",
-    distance: "1.2km"
-  }
-];
 
 const BookDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [isRequesting, setIsRequesting] = useState(false);
 
-  // Find the book by ID
-  const book = mockBooks.find(b => b.id === parseInt(id || '0'));
+  // Get book data from navigation state
+  const book = location.state?.book as Book;
 
   if (!book) {
     return (
