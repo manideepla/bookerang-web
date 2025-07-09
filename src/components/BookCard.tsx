@@ -1,5 +1,6 @@
 
-import { Book as BookIcon } from 'lucide-react';
+import { BookIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Book } from '../types';
 
 interface BookCardProps {
@@ -8,14 +9,23 @@ interface BookCardProps {
 }
 
 export default function BookCard({ book, hideOwnerName = false }: BookCardProps) {
+  const navigate = useNavigate();
+  
   // Debug logging to see what data we're receiving
   console.log('BookCard received book data:', book);
 
   // Check if cover exists and is a valid URL
   const hasValidCover = book.cover && book.cover !== '/placeholder.svg' && book.cover.trim() !== '';
 
+  const handleClick = () => {
+    navigate(`/book/${book.id}`);
+  };
+
   return (
-    <div className="group bg-bookshelf-paper rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+    <div 
+      className="group bg-bookshelf-paper rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="relative">
         {hasValidCover ? (
           <img 
