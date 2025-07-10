@@ -1,3 +1,4 @@
+
 import { Book } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -135,8 +136,26 @@ export const fetchNearbyBooks = async (radius: number = 3000): Promise<Book[]> =
         coverUrl: book.coverUrl,
         cover: book.cover,
         isAvailable: book.isAvailable,
-        ownerName: book.username || book.ownerName || book.owner_name
+        ownerName: book.username || book.ownerName || book.owner_name || book.firstName || book.lastName || book.user?.username || book.user?.firstName || book.user?.lastName
       });
+      
+      // Try multiple possible owner name fields
+      let ownerName = 'Unknown Owner';
+      if (book.username) ownerName = book.username;
+      else if (book.ownerName) ownerName = book.ownerName;
+      else if (book.owner_name) ownerName = book.owner_name;
+      else if (book.firstName && book.lastName) ownerName = `${book.firstName} ${book.lastName}`;
+      else if (book.firstName) ownerName = book.firstName;
+      else if (book.lastName) ownerName = book.lastName;
+      else if (book.user?.username) ownerName = book.user.username;
+      else if (book.user?.firstName && book.user?.lastName) ownerName = `${book.user.firstName} ${book.user.lastName}`;
+      else if (book.user?.firstName) ownerName = book.user.firstName;
+      else if (book.user?.lastName) ownerName = book.user.lastName;
+      else if (book.owner?.name) ownerName = book.owner.name;
+      else if (book.owner?.username) ownerName = book.owner.username;
+      else if (book.owner?.firstName && book.owner?.lastName) ownerName = `${book.owner.firstName} ${book.owner.lastName}`;
+      
+      console.log(`📝 Final owner name for book "${book.title}": "${ownerName}"`);
       
       return {
         id: book.id || 0,
@@ -144,14 +163,14 @@ export const fetchNearbyBooks = async (radius: number = 3000): Promise<Book[]> =
         author: book.author || 'Unknown Author',
         cover: book.coverUrl || book.cover || '/placeholder.svg',
         isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
-        ownerId: book.ownerId || book.owner_id || 0,
-        ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner',
+        ownerId: book.ownerId || book.owner_id || book.userId || book.user_id || 0,
+        ownerName: ownerName,
         distance: book.distance || 'Unknown distance'
       };
     });
     
     console.log('✅ Final mapped books:', mappedBooks.length);
-    console.log('📋 Book titles:', mappedBooks.map(b => b.title));
+    console.log('📋 Book titles with owners:', mappedBooks.map(b => `"${b.title}" by ${b.ownerName}`));
     
     return mappedBooks;
   } catch (error) {
