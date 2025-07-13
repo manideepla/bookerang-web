@@ -1,4 +1,3 @@
-
 import { Book } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -87,6 +86,39 @@ export const fetchUserProfile = async (): Promise<any> => {
   }
 };
 
+// Helper function to extract owner name from various possible fields
+const extractOwnerName = (book: any): string => {
+  console.log('Extracting owner name from book data:', book);
+  
+  // Try different possible owner name fields
+  const possibleFields = [
+    book.ownerName,
+    book.username, 
+    book.owner_name,
+    book.user?.username,
+    book.user?.firstName && book.user?.lastName ? `${book.user.firstName} ${book.user.lastName}` : null,
+    book.user?.firstName,
+    book.user?.lastName,
+    book.owner?.name,
+    book.owner?.username,
+    book.owner?.firstName && book.owner?.lastName ? `${book.owner.firstName} ${book.owner.lastName}` : null,
+    book.firstName && book.lastName ? `${book.firstName} ${book.lastName}` : null,
+    book.firstName,
+    book.lastName
+  ];
+  
+  // Return the first non-empty value
+  for (const field of possibleFields) {
+    if (field && typeof field === 'string' && field.trim() !== '') {
+      console.log('Found owner name:', field);
+      return field.trim();
+    }
+  }
+  
+  console.log('No owner name found, using default');
+  return 'Unknown Owner';
+};
+
 export const fetchNearbyBooks = async (radius: number = 3000): Promise<Book[]> => {
   try {
     console.log('🔍 Starting fetchNearbyBooks API call...');
@@ -129,32 +161,9 @@ export const fetchNearbyBooks = async (radius: number = 3000): Promise<Book[]> =
     
     // Map the books to match the Book interface
     const mappedBooks = books.map((book: any, index: number) => {
-      console.log(`📖 Processing book ${index + 1}:`, {
-        id: book.id,
-        title: book.title,
-        author: book.author,
-        coverUrl: book.coverUrl,
-        cover: book.cover,
-        isAvailable: book.isAvailable,
-        ownerName: book.username || book.ownerName || book.owner_name || book.firstName || book.lastName || book.user?.username || book.user?.firstName || book.user?.lastName
-      });
+      console.log(`📖 Processing book ${index + 1}:`, book);
       
-      // Try multiple possible owner name fields
-      let ownerName = 'Unknown Owner';
-      if (book.username) ownerName = book.username;
-      else if (book.ownerName) ownerName = book.ownerName;
-      else if (book.owner_name) ownerName = book.owner_name;
-      else if (book.firstName && book.lastName) ownerName = `${book.firstName} ${book.lastName}`;
-      else if (book.firstName) ownerName = book.firstName;
-      else if (book.lastName) ownerName = book.lastName;
-      else if (book.user?.username) ownerName = book.user.username;
-      else if (book.user?.firstName && book.user?.lastName) ownerName = `${book.user.firstName} ${book.user.lastName}`;
-      else if (book.user?.firstName) ownerName = book.user.firstName;
-      else if (book.user?.lastName) ownerName = book.user.lastName;
-      else if (book.owner?.name) ownerName = book.owner.name;
-      else if (book.owner?.username) ownerName = book.owner.username;
-      else if (book.owner?.firstName && book.owner?.lastName) ownerName = `${book.owner.firstName} ${book.owner.lastName}`;
-      
+      const ownerName = extractOwnerName(book);
       console.log(`📝 Final owner name for book "${book.title}": "${ownerName}"`);
       
       return {
@@ -227,15 +236,9 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
     
     // Map the books to match the Book interface
     const mappedBooks = books.map((book: any, index: number) => {
-      console.log(`📖 Processing book ${index + 1}:`, {
-        id: book.id,
-        title: book.title,
-        author: book.author,
-        coverUrl: book.coverUrl,
-        cover: book.cover,
-        isAvailable: book.isAvailable,
-        ownerName: book.username || book.ownerName || book.owner_name
-      });
+      console.log(`📖 Processing book ${index + 1}:`, book);
+      
+      const ownerName = extractOwnerName(book);
       
       return {
         id: book.id || 0,
@@ -244,7 +247,7 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
         cover: book.coverUrl || book.cover || '/placeholder.svg',
         isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
         ownerId: book.ownerId || book.owner_id || 0,
-        ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner',
+        ownerName: ownerName,
         distance: book.distance || 'Unknown distance'
       };
     });
@@ -281,14 +284,27 @@ export const searchBooks = async (query: string, showAvailableOnly: boolean): Pr
     const data = await response.json();
     
     // Handle both direct array and object with books property
+    let books: any[] = [];
     if (Array.isArray(data)) {
-      return data;
+      books = data;
     } else if (data && Array.isArray(data.books)) {
-      return data.books;
+      books = data.books;
     } else {
       console.warn('Unexpected search response format:', data);
       return [];
     }
+    
+    // Map the books using the same logic
+    return books.map((book: any) => ({
+      id: book.id || 0,
+      title: book.title || 'Unknown Title',
+      author: book.author || 'Unknown Author',
+      cover: book.coverUrl || book.cover || '/placeholder.svg',
+      isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
+      ownerId: book.ownerId || book.owner_id || 0,
+      ownerName: extractOwnerName(book),
+      distance: book.distance || 'Unknown distance'
+    }));
   } catch (error) {
     console.error('Error searching books:', error);
     return [];
@@ -326,7 +342,7 @@ export const fetchUserBooks = async (): Promise<Book[]> => {
       cover: book.coverUrl || book.cover || '/placeholder.svg',
       isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
       ownerId: book.ownerId || book.owner_id || 0,
-      ownerName: book.username || book.ownerName || book.owner_name || book.owner?.name || 'Unknown Owner',
+      ownerName: extractOwnerName(book),
       distance: book.distance || 'Unknown distance'
     }));
     
