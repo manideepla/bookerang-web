@@ -90,8 +90,9 @@ export const fetchUserProfile = async (): Promise<any> => {
 const extractOwnerName = (book: any): string => {
   console.log('Extracting owner name from book data:', book);
   
-  // Try different possible owner name fields
+  // Try different possible owner name fields - updated for actual API response
   const possibleFields = [
+    book.owner, // Direct owner field from API
     book.ownerName,
     book.username, 
     book.owner_name,
