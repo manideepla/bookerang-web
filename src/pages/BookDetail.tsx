@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { BookIcon, ArrowLeft, User, MapPin } from 'lucide-react';
@@ -16,15 +17,17 @@ const BookDetail = () => {
 
   // Get book data from navigation state
   const book = location.state?.book as Book;
+  // Get the source page from navigation state, default to home
+  const fromPage = location.state?.from || '/';
 
   if (!book) {
     return (
       <div className="min-h-screen bg-bookshelf-cream/30 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-bookshelf-brown mb-4">Book Not Found</h2>
-          <Button onClick={() => navigate('/')} variant="outline">
+          <Button onClick={() => navigate(fromPage)} variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
+            Back to Books
           </Button>
         </div>
       </div>
@@ -74,7 +77,7 @@ const BookDetail = () => {
     <div className="min-h-screen bg-bookshelf-cream/30">
       <div className="container mx-auto px-4 py-8">
         <Button 
-          onClick={() => navigate('/')} 
+          onClick={() => navigate(fromPage)} 
           variant="outline" 
           className="mb-6"
         >
