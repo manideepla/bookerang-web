@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { BookIcon, ArrowLeft, User, MapPin } from 'lucide-react';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Book } from '../types';
+import { getAuthHeaders } from '../services/api';
 
 const BookDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,13 +35,11 @@ const BookDetail = () => {
     setIsRequesting(true);
     
     try {
-      // This would be replaced with actual API call
       const response = await fetch(`http://localhost:8080/books/${book.id}/borrow`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Add authorization header if needed
-          // 'Authorization': `Bearer ${token}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           bookId: book.id,
