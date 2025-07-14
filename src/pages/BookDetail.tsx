@@ -15,6 +15,7 @@ const BookDetail = () => {
   const location = useLocation();
   const { toast } = useToast();
   const [isRequesting, setIsRequesting] = useState(false);
+  const [bookState, setBookState] = useState<string | undefined>();
 
   // Get book data from navigation state
   const book = location.state?.book as Book;
@@ -51,6 +52,10 @@ const BookDetail = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        if (data.book_state) {
+          setBookState(data.book_state);
+        }
         toast({
           title: 'Request Approved',
           description: `You have approved the borrow request for "${book.title}".`,
@@ -84,6 +89,10 @@ const BookDetail = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        if (data.book_state) {
+          setBookState(data.book_state);
+        }
         toast({
           title: 'Request Rejected',
           description: `You have rejected the borrow request for "${book.title}".`,
@@ -203,18 +212,18 @@ const BookDetail = () => {
                     <div className="flex items-center gap-3">
                       <span className="text-bookshelf-dark/70">Status:</span>
                       <Badge 
-                        variant={book.state === 'Available' ? 'default' : 'secondary'}
-                        className={book.state === 'Available' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}
+                        variant={(bookState || book.state) === 'Available' ? 'default' : 'secondary'}
+                        className={(bookState || book.state) === 'Available' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}
                       >
-                        {book.state || (book.isAvailable ? 'Available' : 'Not Available')}
+                        {bookState || book.state || (book.isAvailable ? 'Available' : 'Not Available')}
                       </Badge>
                     </div>
 
-                    {isFromMyBooks && book.state === 'Requested' ? (
+                    {isFromMyBooks && book.state === 'Requested' && !bookState ? (
                       <div className="flex gap-3">
                         <Button 
                           onClick={handleApprove}
-                          disabled={isRequesting}
+                          disabled={isRequesting || bookState !== undefined}
                           className="flex-1 bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                           size="lg"
                         >
@@ -222,7 +231,7 @@ const BookDetail = () => {
                         </Button>
                         <Button 
                           onClick={handleReject}
-                          disabled={isRequesting}
+                          disabled={isRequesting || bookState !== undefined}
                           className="flex-1 bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                           size="lg"
                         >
