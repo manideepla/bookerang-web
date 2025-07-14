@@ -20,6 +20,9 @@ const BookDetail = () => {
   const book = location.state?.book as Book;
   // Get the source page from navigation state, default to home
   const fromPage = location.state?.from || '/';
+  
+  // Check if we're coming from my books page
+  const isFromMyBooks = fromPage === '/my-books';
 
   if (!book) {
     return (
@@ -34,6 +37,72 @@ const BookDetail = () => {
       </div>
     );
   }
+
+  const handleApprove = async () => {
+    setIsRequesting(true);
+    
+    try {
+      const response = await fetch(`http://localhost:8080/books/${book.id}/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        }
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Request Approved',
+          description: `You have approved the borrow request for "${book.title}".`,
+          variant: 'default'
+        });
+      } else {
+        throw new Error('Failed to approve request');
+      }
+    } catch (error) {
+      console.error('Error approving request:', error);
+      toast({
+        title: 'Approval Failed',
+        description: 'Failed to approve request. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsRequesting(false);
+    }
+  };
+
+  const handleReject = async () => {
+    setIsRequesting(true);
+    
+    try {
+      const response = await fetch(`http://localhost:8080/books/${book.id}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        }
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Request Rejected',
+          description: `You have rejected the borrow request for "${book.title}".`,
+          variant: 'default'
+        });
+      } else {
+        throw new Error('Failed to reject request');
+      }
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      toast({
+        title: 'Rejection Failed',
+        description: 'Failed to reject request. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsRequesting(false);
+    }
+  };
 
   const handleBorrowRequest = async () => {
     setIsRequesting(true);
@@ -117,17 +186,19 @@ const BookDetail = () => {
                       </p>
                     </div>
 
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3 text-bookshelf-dark/70">
-                        <User className="w-5 h-5" />
-                        <span>Owner: {book.ownerName}</span>
+                    {!isFromMyBooks && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 text-bookshelf-dark/70">
+                          <User className="w-5 h-5" />
+                          <span>Owner: {book.ownerName}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 text-bookshelf-dark/70">
+                          <MapPin className="w-5 h-5" />
+                          <span>{book.distance} away</span>
+                        </div>
                       </div>
-                      
-                      <div className="flex items-center gap-3 text-bookshelf-dark/70">
-                        <MapPin className="w-5 h-5" />
-                        <span>{book.distance} away</span>
-                      </div>
-                    </div>
+                    )}
 
                     <div className="flex items-center gap-3">
                       <span className="text-bookshelf-dark/70">Status:</span>
@@ -139,14 +210,35 @@ const BookDetail = () => {
                       </Badge>
                     </div>
 
-                    <Button 
-                      onClick={handleBorrowRequest}
-                      disabled={isRequesting || book.state !== 'Available'}
-                      className="w-full bg-bookshelf-teal text-white hover:bg-bookshelf-teal/80 disabled:opacity-50 disabled:cursor-not-allowed"
-                      size="lg"
-                    >
-                      {isRequesting ? 'Sending Request...' : 'Request to Borrow'}
-                    </Button>
+                    {isFromMyBooks && book.state === 'Requested' ? (
+                      <div className="flex gap-3">
+                        <Button 
+                          onClick={handleApprove}
+                          disabled={isRequesting}
+                          className="flex-1 bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          size="lg"
+                        >
+                          {isRequesting ? 'Processing...' : 'Approve'}
+                        </Button>
+                        <Button 
+                          onClick={handleReject}
+                          disabled={isRequesting}
+                          className="flex-1 bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          size="lg"
+                        >
+                          {isRequesting ? 'Processing...' : 'Reject'}
+                        </Button>
+                      </div>
+                    ) : !isFromMyBooks && book.state === 'Available' ? (
+                      <Button 
+                        onClick={handleBorrowRequest}
+                        disabled={isRequesting}
+                        className="w-full bg-bookshelf-teal text-white hover:bg-bookshelf-teal/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                        size="lg"
+                      >
+                        {isRequesting ? 'Sending Request...' : 'Request to Borrow'}
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               </div>
