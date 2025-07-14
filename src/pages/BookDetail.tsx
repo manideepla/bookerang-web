@@ -145,8 +145,7 @@ const BookDetail = () => {
                       className="w-full bg-bookshelf-teal text-white hover:bg-bookshelf-teal/80 disabled:opacity-50 disabled:cursor-not-allowed"
                       size="lg"
                     >
-                      {isRequesting ? 'Sending Request...' : 
-                       book.state !== 'Available' ? 'Not Available' : 'Request to Borrow'}
+                      {isRequesting ? 'Sending Request...' : 'Request to Borrow'}
                     </Button>
                   </div>
                 </div>
