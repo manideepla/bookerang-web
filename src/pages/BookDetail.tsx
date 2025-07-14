@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { BookIcon, ArrowLeft, User, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Book } from '../types';
@@ -128,23 +129,25 @@ const BookDetail = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${book.isAvailable ? 'bg-green-500' : 'bg-red-500'}`} />
-                      <span className={`font-medium ${book.isAvailable ? 'text-green-700' : 'text-red-700'}`}>
-                        {book.isAvailable ? 'Available' : 'Not Available'}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-bookshelf-dark/70">Status:</span>
+                      <Badge 
+                        variant={book.state === 'Available' ? 'default' : 'secondary'}
+                        className={book.state === 'Available' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}
+                      >
+                        {book.state || (book.isAvailable ? 'Available' : 'Not Available')}
+                      </Badge>
                     </div>
 
-                    {book.isAvailable && (
-                      <Button 
-                        onClick={handleBorrowRequest}
-                        disabled={isRequesting}
-                        className="w-full bg-bookshelf-teal text-white hover:bg-bookshelf-teal/80"
-                        size="lg"
-                      >
-                        {isRequesting ? 'Sending Request...' : 'Request to Borrow'}
-                      </Button>
-                    )}
+                    <Button 
+                      onClick={handleBorrowRequest}
+                      disabled={isRequesting || book.state !== 'Available'}
+                      className="w-full bg-bookshelf-teal text-white hover:bg-bookshelf-teal/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                      size="lg"
+                    >
+                      {isRequesting ? 'Sending Request...' : 
+                       book.state !== 'Available' ? 'Not Available' : 'Request to Borrow'}
+                    </Button>
                   </div>
                 </div>
               </div>

@@ -172,10 +172,11 @@ export const fetchNearbyBooks = async (radius: number = 3000): Promise<Book[]> =
         title: book.title || 'Unknown Title',
         author: book.author || 'Unknown Author',
         cover: book.coverUrl || book.cover || '/placeholder.svg',
-        isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
+        isAvailable: book.state === 'Available',
         ownerId: book.ownerId || book.owner_id || book.userId || book.user_id || 0,
         ownerName: ownerName,
-        distance: book.distance || 'Unknown distance'
+        distance: book.distance || 'Unknown distance',
+        state: book.state
       };
     });
     
@@ -246,10 +247,11 @@ export const fetchBooks = async (radius: number = 3000): Promise<Book[]> => {
         title: book.title || 'Unknown Title',
         author: book.author || 'Unknown Author',
         cover: book.coverUrl || book.cover || '/placeholder.svg',
-        isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
+        isAvailable: book.state === 'Available',
         ownerId: book.ownerId || book.owner_id || 0,
         ownerName: ownerName,
-        distance: book.distance || 'Unknown distance'
+        distance: book.distance || 'Unknown distance',
+        state: book.state
       };
     });
     
@@ -301,10 +303,11 @@ export const searchBooks = async (query: string, showAvailableOnly: boolean): Pr
       title: book.title || 'Unknown Title',
       author: book.author || 'Unknown Author',
       cover: book.coverUrl || book.cover || '/placeholder.svg',
-      isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
+      isAvailable: book.state === 'Available',
       ownerId: book.ownerId || book.owner_id || 0,
       ownerName: extractOwnerName(book),
-      distance: book.distance || 'Unknown distance'
+      distance: book.distance || 'Unknown distance',
+      state: book.state
     }));
   } catch (error) {
     console.error('Error searching books:', error);
@@ -341,10 +344,11 @@ export const fetchUserBooks = async (): Promise<Book[]> => {
       title: book.title || 'Unknown Title',
       author: book.author || 'Unknown Author',
       cover: book.coverUrl || book.cover || '/placeholder.svg',
-      isAvailable: book.isAvailable !== undefined ? book.isAvailable : true,
+      isAvailable: book.state === 'Available',
       ownerId: book.ownerId || book.owner_id || 0,
       ownerName: extractOwnerName(book),
-      distance: book.distance || 'Unknown distance'
+      distance: book.distance || 'Unknown distance',
+      state: book.state
     }));
     
     return mappedBooks;
@@ -391,7 +395,8 @@ export const addBook = async (title: string, author: string, bookPhoto?: File): 
       isAvailable: true,
       ownerId: 0,
       ownerName: 'You',
-      distance: 'Your book'
+      distance: 'Your book',
+      state: 'Available'
     };
   } catch (error) {
     console.error('Error adding book:', error);

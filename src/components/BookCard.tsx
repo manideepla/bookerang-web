@@ -1,6 +1,7 @@
 
 import { BookIcon } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 import { Book } from '../types';
 
 interface BookCardProps {
@@ -57,6 +58,18 @@ export default function BookCard({ book, hideOwnerName = false }: BookCardProps)
         >
           <BookIcon className="w-20 h-20 text-bookshelf-brown/30" />
         </div>
+        
+        {/* State Badge */}
+        {book.state && (
+          <div className="absolute top-2 right-2">
+            <Badge 
+              variant={book.state === 'Available' ? 'default' : 'secondary'}
+              className={book.state === 'Available' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}
+            >
+              {book.state}
+            </Badge>
+          </div>
+        )}
       </div>
       
       <div className="p-4">

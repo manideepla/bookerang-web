@@ -7,6 +7,7 @@ export interface Book {
   ownerId: number;
   ownerName?: string;
   distance?: string;
+  state?: string;
 }
 
 export interface BookUser {
