@@ -130,6 +130,10 @@ const BookDetail = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        if (data.book_state) {
+          setBookState(data.book_state);
+        }
         toast({
           title: 'Borrow Request Sent',
           description: `Your request to borrow "${book.title}" has been sent to ${book.ownerName}.`,
@@ -241,7 +245,7 @@ const BookDetail = () => {
                     ) : !isFromMyBooks && book.state === 'Available' ? (
                       <Button 
                         onClick={handleBorrowRequest}
-                        disabled={isRequesting}
+                        disabled={isRequesting || bookState !== undefined}
                         className="w-full bg-bookshelf-teal text-white hover:bg-bookshelf-teal/80 disabled:opacity-50 disabled:cursor-not-allowed"
                         size="lg"
                       >
