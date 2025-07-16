@@ -3,7 +3,8 @@ import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, User, LogOut } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { MapPin, User, LogOut, Edit2, Check, X } from 'lucide-react';
 import { logout, fetchUserProfile } from '../services/api';
 
 const Profile = () => {
@@ -12,6 +13,9 @@ const Profile = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('auth_token'));
   const [userProfile, setUserProfile] = useState<any>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [phoneValue, setPhoneValue] = useState('');
+  const [isUpdatingPhone, setIsUpdatingPhone] = useState(false);
   const { toast } = useToast();
 
   // Listen for auth token changes
@@ -52,6 +56,7 @@ const Profile = () => {
     try {
       const profile = await fetchUserProfile();
       setUserProfile(profile);
+      setPhoneValue(profile?.phone || '');
     } catch (error) {
       console.error('Failed to load user profile:', error);
       toast({
@@ -61,6 +66,52 @@ const Profile = () => {
       });
     } finally {
       setIsLoadingProfile(false);
+    }
+  };
+
+  const handleEditPhone = () => {
+    setIsEditingPhone(true);
+    setPhoneValue(userProfile?.phone || '');
+  };
+
+  const handleCancelPhoneEdit = () => {
+    setIsEditingPhone(false);
+    setPhoneValue(userProfile?.phone || '');
+  };
+
+  const handleSavePhone = async () => {
+    setIsUpdatingPhone(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ phone: phoneValue }),
+      });
+
+      if (response.ok) {
+        const updatedProfile = await response.json();
+        setUserProfile(updatedProfile);
+        setIsEditingPhone(false);
+        toast({
+          title: "Success",
+          description: "Phone number updated successfully.",
+        });
+      } else {
+        throw new Error('Failed to update phone number');
+      }
+    } catch (error) {
+      console.error('Failed to update phone number:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update phone number.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingPhone(false);
     }
   };
 
@@ -195,14 +246,47 @@ const Profile = () => {
                         {formatMemberSince(userProfile?.createdAt || userProfile?.memberSince)}
                       </p>
                     </div>
-                    {userProfile?.phone && (
-                      <div>
-                        <label className="text-sm font-medium text-bookshelf-dark/70">Phone Number</label>
-                        <p className="text-bookshelf-brown font-medium">
-                          {userProfile.phone}
-                        </p>
-                      </div>
-                    )}
+                    <div>
+                      <label className="text-sm font-medium text-bookshelf-dark/70">Phone Number</label>
+                      {isEditingPhone ? (
+                        <div className="flex items-center gap-2 mt-1">
+                          <Input
+                            value={phoneValue}
+                            onChange={(e) => setPhoneValue(e.target.value)}
+                            placeholder="Enter phone number"
+                            className="flex-1"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={handleSavePhone}
+                            disabled={isUpdatingPhone}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleCancelPhoneEdit}
+                            disabled={isUpdatingPhone}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-bookshelf-brown font-medium flex-1">
+                            {userProfile?.phone || 'No phone number set'}
+                          </p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleEditPhone}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </CardContent>
