@@ -195,6 +195,14 @@ const Profile = () => {
                         {formatMemberSince(userProfile?.createdAt || userProfile?.memberSince)}
                       </p>
                     </div>
+                    {userProfile?.phone && (
+                      <div>
+                        <label className="text-sm font-medium text-bookshelf-dark/70">Phone Number</label>
+                        <p className="text-bookshelf-brown font-medium">
+                          {userProfile.phone}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
