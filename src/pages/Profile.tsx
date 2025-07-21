@@ -56,7 +56,7 @@ const Profile = () => {
     try {
       const profile = await fetchUserProfile();
       setUserProfile(profile);
-      setPhoneValue(profile?.phone || '');
+      setPhoneValue(profile?.phoneNumber || '');
     } catch (error) {
       console.error('Failed to load user profile:', error);
       toast({
@@ -71,12 +71,12 @@ const Profile = () => {
 
   const handleEditPhone = () => {
     setIsEditingPhone(true);
-    setPhoneValue(userProfile?.phone || '');
+    setPhoneValue(userProfile?.phoneNumber || '');
   };
 
   const handleCancelPhoneEdit = () => {
     setIsEditingPhone(false);
-    setPhoneValue(userProfile?.phone || '');
+    setPhoneValue(userProfile?.phoneNumber || '');
   };
 
   const handleSavePhone = async () => {
@@ -274,9 +274,9 @@ const Profile = () => {
                         </div>
                       ) : (
                         <div className="flex items-center gap-2 mt-1">
-                          <p className="text-bookshelf-brown font-medium flex-1">
-                            {userProfile?.phone || 'No phone number set'}
-                          </p>
+                           <p className="text-bookshelf-brown font-medium flex-1">
+                             {userProfile?.phoneNumber || 'No phone number set'}
+                           </p>
                           <Button
                             size="sm"
                             variant="outline"
