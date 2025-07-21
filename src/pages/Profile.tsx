@@ -100,10 +100,10 @@ const Profile = () => {
         // Update the userProfile with the new phone number from the correct field
         const updatedUserProfile = {
           ...userProfile,
-          phoneNumber: updatedProfile.savedPhoneNumber2 || updatedProfile.phoneNumber
+          phoneNumber: updatedProfile.savedPhoneNumber || updatedProfile.phoneNumber
         };
         setUserProfile(updatedUserProfile);
-        setPhoneValue(updatedProfile.savedPhoneNumber2 || updatedProfile.phoneNumber || '');
+        setPhoneValue(updatedProfile.savedPhoneNumber || updatedProfile.phoneNumber || '');
         setIsEditingPhone(false);
         toast({
           title: "Success",
