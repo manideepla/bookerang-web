@@ -96,6 +96,7 @@ const Profile = () => {
 
       if (response.ok) {
         const updatedProfile = await response.json();
+        console.log('Updated profile response:', updatedProfile);
         setUserProfile(updatedProfile);
         setPhoneValue(updatedProfile.phoneNumber || '');
         setIsEditingPhone(false);
