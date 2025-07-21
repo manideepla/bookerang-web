@@ -80,6 +80,7 @@ const Profile = () => {
   };
 
   const handleSavePhone = async () => {
+    const originalPhoneNumber = userProfile?.phoneNumber || '';
     setIsUpdatingPhone(true);
     try {
       const headers = {
@@ -96,6 +97,7 @@ const Profile = () => {
       if (response.ok) {
         const updatedProfile = await response.json();
         setUserProfile(updatedProfile);
+        setPhoneValue(updatedProfile.phoneNumber || '');
         setIsEditingPhone(false);
         toast({
           title: "Success",
@@ -106,6 +108,7 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Failed to update phone number:', error);
+      setPhoneValue(originalPhoneNumber);
       toast({
         title: "Error",
         description: "Failed to update phone number.",
