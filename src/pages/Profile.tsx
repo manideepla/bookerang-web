@@ -97,8 +97,13 @@ const Profile = () => {
       if (response.ok) {
         const updatedProfile = await response.json();
         console.log('Updated profile response:', updatedProfile);
-        setUserProfile(updatedProfile);
-        setPhoneValue(updatedProfile.phoneNumber || '');
+        // Update the userProfile with the new phone number from the correct field
+        const updatedUserProfile = {
+          ...userProfile,
+          phoneNumber: updatedProfile.savedPhoneNumber2 || updatedProfile.phoneNumber
+        };
+        setUserProfile(updatedUserProfile);
+        setPhoneValue(updatedProfile.savedPhoneNumber2 || updatedProfile.phoneNumber || '');
         setIsEditingPhone(false);
         toast({
           title: "Success",
