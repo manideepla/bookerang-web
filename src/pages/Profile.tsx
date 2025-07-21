@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { MapPin, User, LogOut, Edit2, Check, X } from 'lucide-react';
-import { logout, fetchUserProfile } from '../services/api';
+import { logout, fetchUserProfile, getAuthHeaders } from '../services/api';
 
 const Profile = () => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -82,13 +82,14 @@ const Profile = () => {
   const handleSavePhone = async () => {
     setIsUpdatingPhone(true);
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/user/me', {
+      const headers = {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      };
+      
+      const response = await fetch('http://localhost:8080/user/me', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({ phoneNumber: phoneValue }),
       });
 
