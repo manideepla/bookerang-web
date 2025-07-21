@@ -115,6 +115,7 @@ const Profile = () => {
     } catch (error) {
       console.error('Failed to update phone number:', error);
       setPhoneValue(originalPhoneNumber);
+      setIsEditingPhone(false);
       toast({
         title: "Error",
         description: "Failed to update phone number.",
