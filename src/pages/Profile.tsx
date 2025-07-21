@@ -83,13 +83,13 @@ const Profile = () => {
     setIsUpdatingPhone(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/profile', {
+      const response = await fetch('/user/me', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ phone: phoneValue }),
+        body: JSON.stringify({ phoneNumber: phoneValue }),
       });
 
       if (response.ok) {
