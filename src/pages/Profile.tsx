@@ -110,7 +110,15 @@ const Profile = () => {
           description: "Phone number updated successfully.",
         });
       } else {
-        throw new Error('Failed to update phone number');
+        // Try to get error message from server response
+        let errorMessage = "Failed to update phone number.";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (parseError) {
+          // Use default message if JSON parsing fails
+        }
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error('Failed to update phone number:', error);
@@ -118,7 +126,7 @@ const Profile = () => {
       setIsEditingPhone(false);
       toast({
         title: "Error",
-        description: "Failed to update phone number.",
+        description: error instanceof Error ? error.message : "Failed to update phone number.",
         variant: "destructive",
       });
     } finally {
